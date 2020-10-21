@@ -9,6 +9,33 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.TraceLA">
+        <activity android:name=".SymptomsSurvey"
+            android:parentActivityName=".MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="edu.ucla.darrenzhang.tracela.MainActivity" />
+        </activity>
+        <activity
+            android:name=".Maps"
+            android:parentActivityName=".MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="edu.ucla.darrenzhang.tracela.MainActivity" />
+        </activity>
+        <activity
+            android:name=".NewsPage"
+            android:parentActivityName=".MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="edu.ucla.darrenzhang.tracela.MainActivity" />
+        </activity>
+        <activity
+            android:name=".Friends"
+            android:parentActivityName=".MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="edu.ucla.darrenzhang.tracela.MainActivity" />
+        </activity>
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

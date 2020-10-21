@@ -3,6 +3,7 @@ package edu.ucla.darrenzhang.tracela;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -69,10 +70,31 @@ public class MainActivity extends AppCompatActivity {
                 phrase.append(line);
                 line = reader.readLine();
             }
+//            reader.close();
             TextView outputText = findViewById(R.id.displayText);
             outputText.setText(phrase.toString());
         }catch (IOException e){
             e.printStackTrace();
         }
+    }
+
+    public void onClickNews(View view) {
+        Intent intent = new Intent(this, NewsPage.class);
+        startActivity(intent);
+    }
+
+    public void onClickFriends(View view) {
+        Intent intent = new Intent(this, Friends.class);
+        startActivity(intent);
+    }
+
+    public void onClickSurvey(View view) {
+        Intent intent = new Intent(this, SymptomsSurvey.class);
+        startActivity(intent);
+    }
+
+    public void onClickMap(View view) {
+        Intent intent = new Intent(this, Maps.class);
+        startActivity(intent);
     }
 }
