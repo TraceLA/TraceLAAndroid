@@ -1,18 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+
+
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_height="match_parent" android:layout_width="match_parent">
+    <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:map="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/map"
+    android:name="com.google.android.gms.maps.SupportMapFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Maps">
+    tools:context=".Maps" />
 
-    <TextView
-        android:id="@+id/mapsHeaderTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="17dp"
-        android:layout_marginTop="19dp"
-        android:text="@string/map"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
+<!--&lt;!&ndash;<com.google.android.material.appbar.AppBarLayout&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;        android:id="@+id/app_bar"&ndash;&gt;-->
+<!--&lt;!&ndash;        android:layout_width="match_parent"&ndash;&gt;-->
+<!--&lt;!&ndash;        android:layout_height="wrap_content"&ndash;&gt;-->
+<!--&lt;!&ndash;        android:fitsSystemWindows="true"&ndash;&gt;-->
+<!--&lt;!&ndash;            android:theme="@style/Theme.AppCompat.NoActionBar"&ndash;&gt;-->
+<!--&lt;!&ndash;            >&ndash;&gt;-->
+
+<!--&lt;!&ndash;        <androidx.appcompat.widget.Toolbar&ndash;&gt;-->
+<!--&lt;!&ndash;            android:id="@+id/toolbar"&ndash;&gt;-->
+<!--&lt;!&ndash;            android:layout_width="match_parent"&ndash;&gt;-->
+<!--&lt;!&ndash;            android:layout_height="?attr/actionBarSize"&ndash;&gt;-->
+<!--&lt;!&ndash;            >&ndash;&gt;-->
+
+<!--&lt;!&ndash;        </androidx.appcompat.widget.Toolbar>-->
+<!--&lt;!&ndash;    </com.google.android.material.appbar.AppBarLayout>&ndash;&gt;-->
