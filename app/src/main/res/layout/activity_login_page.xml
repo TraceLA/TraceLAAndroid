@@ -71,7 +71,7 @@
         android:id="@+id/errorTextView"
         android:layout_width="276dp"
         android:layout_height="76dp"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="30dp"
         android:layout_marginBottom="104dp"
         android:textColor="#E60B0B"
         app:layout_constraintBottom_toBottomOf="parent"
