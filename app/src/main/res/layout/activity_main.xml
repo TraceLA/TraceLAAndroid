@@ -7,40 +7,6 @@
     android:background="@android:color/background_light"
     tools:context=".MainActivity">
 
-    <TextView
-        android:id="@+id/displayText"
-        android:layout_width="285dp"
-        android:layout_height="27dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.171" />
-
-    <Button
-        android:id="@+id/saveButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Save"
-        android:background="@android:color/holo_blue_light"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.037"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.071" />
-
-    <EditText
-        android:id="@+id/inputText"
-        android:layout_width="121dp"
-        android:layout_height="21dp"
-        android:ems="10"
-        android:hint="Enter Text"
-        android:inputType="textPersonName"
-        tools:layout_editor_absoluteX="16dp"
-        tools:layout_editor_absoluteY="16dp" />
-
     <Button
         android:id="@+id/newsButton"
         android:layout_width="wrap_content"
@@ -84,11 +50,12 @@
         android:id="@+id/mapButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="40dp"
         android:layout_marginTop="292dp"
         android:onClick="onClickMap"
         android:text="@string/map"
-        app:layout_constraintStart_toStartOf="@+id/inputText"
+        app:layout_constraintEnd_toStartOf="@+id/surveyButton"
+        app:layout_constraintHorizontal_bias="0.584"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

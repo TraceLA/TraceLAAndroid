@@ -75,23 +75,23 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-    @Override
-    protected void onStart() {
-        super.onStart();
-
-        Button saveBtn = findViewById(R.id.saveButton);
-        saveBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                EditText inputString = findViewById(R.id.inputText);
-                writeToInternalMemory(inputString.getText().toString());
-//                Backend a = new Backend();
-//                a.getAndPOST("");
-                displayInternalMemory();
-            }
-        });
-
-    }
+//    @Override
+//    protected void onStart() {
+//        super.onStart();
+//
+////        Button saveBtn = findViewById(R.id.saveButton);
+//        saveBtn.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+////                EditText inputString = findViewById(R.id.inputText);
+//                writeToInternalMemory(inputString.getText().toString());
+////                Backend a = new Backend();
+////                a.getAndPOST("");
+//                displayInternalMemory();
+//            }
+//        });
+//
+//    }
     public boolean internalMemoryIsEmpty(){
         writeToInternalMemory("");
 
@@ -138,8 +138,8 @@ public class MainActivity extends AppCompatActivity {
                 phrase.append(line);
                 line = reader.readLine();
             }
-            TextView outputText = findViewById(R.id.displayText);
-            outputText.setText(phrase.toString());
+//            TextView outputText = findViewById(R.id.displayText);
+//            outputText.setText(phrase.toString());
         }catch (IOException e){
             e.printStackTrace();
         }
