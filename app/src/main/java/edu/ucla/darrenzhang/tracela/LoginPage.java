@@ -31,19 +31,19 @@ public class LoginPage extends AppCompatActivity {
         String id = UCLAIDEditText.getText().toString();
         boolean error = false;
         if (email.length()==0){
-            errorTextView.setText("Please enter an email");
+            errorTextView.setText("Please enter an email\n");
             error = true;
         }
         if (email.indexOf("@ucla.edu")!= email.length()-9){
-            errorTextView.setText(errorTextView.getText().toString()+" Please enter your @ucla.edu email");
+            errorTextView.setText(errorTextView.getText().toString()+" Please enter your @ucla.edu email\n");
             error = true;
         }
         if (password.length()==0){
-            errorTextView.setText(errorTextView.getText().toString()+" Please enter a password");
+            errorTextView.setText(errorTextView.getText().toString()+" Please enter a password\n");
             error = true;
         }
         if (id.length() <9 || id.length()>9){
-            errorTextView.setText(errorTextView.getText().toString()+" Please enter your 9-digit UCLA ID");
+            errorTextView.setText(errorTextView.getText().toString()+" Please enter your 9-digit UCLA ID\n");
             error = true;
         }
         if (error) return;

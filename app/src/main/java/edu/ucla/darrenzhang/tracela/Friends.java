@@ -32,7 +32,7 @@ public class Friends extends AppCompatActivity {
 
         //Add item in array list
         for (int i = 0; i <= 100; i++) {
-            stringArrayList.add("Item " + i);
+            stringArrayList.add("User " + i);
         }
 
         //Initialize adapter
