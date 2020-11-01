@@ -7,15 +7,20 @@ import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.gms.security.ProviderInstaller;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.HashMap;
 
 public class CreateAccount extends AppCompatActivity {
     private EditText fNameEditText, lNameEditText, usernameEditText, emailEditText, idEditText, passwordEditText;
@@ -46,27 +51,17 @@ public class CreateAccount extends AppCompatActivity {
     }
 
     private void addUserToDatabase() {
+
         RequestQueue queue = Volley.newRequestQueue(this);
 
-        JSONObject user = new JSONObject();
-        try {
-            user.put("first_name", firstName);
-            user.put("last_name", lastName);
-            user.put("username", username);
-            user.put("password", password);
-            user.put("email", email);
-            user.put("studentid", id);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-
-        JsonObjectRequest userPOSTRequest = new JsonObjectRequest(Request.Method.POST, Constants.usersURL, user,
-                new Response.Listener<JSONObject>() {
+        String url = Constants.usersURL+ "/?first_name="+firstName+"&last_name="+lastName+"&username="+username+"&email="+email+"&studentid="+id+"&password="+password;
+        StringRequest userPOSTRequest = new StringRequest(Request.Method.POST, url,
+                new Response.Listener<String>() {
                     @Override
-                    public void onResponse(JSONObject response) {
+                    public void onResponse(String response) {
 
                         String text = response.toString();
+                        Log.d("SUCCESS: ", text);
                     }
                 }, new Response.ErrorListener() {
             @Override
