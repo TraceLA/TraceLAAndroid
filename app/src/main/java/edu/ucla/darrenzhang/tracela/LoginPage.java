@@ -64,15 +64,16 @@ public class LoginPage extends AppCompatActivity {
             error = true;
         }
         if (error) return;
-        if (userIsInDatabase()) {
-            writeToInternalMemory(email + "\n");
-            writeToInternalMemory(password + "\n");
-            writeToInternalMemory(id + "\n");
-            finish();
-        } else {
-            errorTextView.setText("Please create an account with the Sign Up button\n");
-            return;
-        }
+        processUserCredentials();
+//        if (userIsInDatabase()) {
+//            writeToInternalMemory(email + "\n");
+//            writeToInternalMemory(password + "\n");
+//            writeToInternalMemory(id + "\n");
+//            finish();
+//        } else {
+//            errorTextView.setText("Please create an account with the Sign Up button\n");
+//            return;
+//        }
     }
 
     public void writeToInternalMemory(String s) {
@@ -88,10 +89,10 @@ public class LoginPage extends AppCompatActivity {
         startActivity(createAccountIntent);
     }
 
-    private boolean userIsInDatabase() {
+    private void processUserCredentials() {
         RequestQueue queue = Volley.newRequestQueue(this);
 
-        final InfoObject inDatabase = new InfoObject(false);
+//        final InfoObject inDatabase = new InfoObject(false);
         JsonArrayRequest userGetRequest = new JsonArrayRequest(Request.Method.GET, Constants.usersURL, new JSONArray(),
                 new Response.Listener<JSONArray>() {
                     @Override
@@ -100,18 +101,19 @@ public class LoginPage extends AppCompatActivity {
                             JSONObject user = null;
                             try {
                                 user = userList.getJSONObject(i);
-                                if (user.getString("email").equals(email)
-//                                        && user.getString("password").equals(password)
-                                ){
-                                     inDatabase.setInDatabase(true);
+                                if (user.getString("email").equals(email) /*&& user.getString("password").equals(password)*/){
+//                                     inDatabase.setInDatabase(true);
                                      Log.d("matched: ",email);
+                                     writeCredentialsToMemory();
+                                     finish();
                                 }
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
-                            if (inDatabase.isInDatabase())
-                                break;
+//                            if (inDatabase.isInDatabase())
+//                                break;
                         }
+                        errorTextView.setText("Please create an account with the Sign Up button\n");
                     }
                 }, new Response.ErrorListener() {
             @Override
@@ -121,7 +123,12 @@ public class LoginPage extends AppCompatActivity {
         });
 
         queue.add(userGetRequest);
-        Log.d("database contains:", Boolean.toString(inDatabase.isInDatabase()));
-        return inDatabase.isInDatabase();
+//        Log.d("database contains:", Boolean.toString(inDatabase.isInDatabase()));
+//        return inDatabase.isInDatabase();
+    }
+    private void writeCredentialsToMemory(){
+        writeToInternalMemory(email + "\n");
+        writeToInternalMemory(password + "\n");
+        writeToInternalMemory(id + "\n");
     }
 }
