@@ -63,7 +63,8 @@ public class LoginPage extends AppCompatActivity {
 //            error = true;
 //        }
         if (error) return;
-        processUserCredentials();
+//        processUserCredentials();
+        loginPOST();
 //        if (userIsInDatabase()) {
 //            writeToInternalMemory(email + "\n");
 //            writeToInternalMemory(password + "\n");
@@ -154,6 +155,7 @@ public class LoginPage extends AppCompatActivity {
 //                            e.printStackTrace();
 //                        }
                         Log.d("SUCCESS: ", MainActivity.api_key);
+                        finish();
                     }
                 }, new Response.ErrorListener() {
             @Override
