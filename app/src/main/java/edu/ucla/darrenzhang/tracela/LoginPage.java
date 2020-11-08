@@ -4,7 +4,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
 import android.content.Intent;
-import android.icu.text.IDNA;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -16,7 +15,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
-import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
 import org.json.JSONArray;
@@ -27,9 +26,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 public class LoginPage extends AppCompatActivity {
-    private EditText emailEditText, passwordEditText, UCLAIDEditText;
+    private EditText usernameEditText, passwordEditText, UCLAIDEditText;
     private TextView errorTextView;
-    private String email, password, id;
+    private String username, password, id;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,31 +37,31 @@ public class LoginPage extends AppCompatActivity {
     }
 
     public void onLoginClick(View view) {
-        emailEditText = findViewById(R.id.emailEditText);
+        usernameEditText = findViewById(R.id.loginUsernameEditText);
         passwordEditText = findViewById(R.id.passwordEditText);
-        UCLAIDEditText = findViewById(R.id.uclaIDEditText);
+//        UCLAIDEditText = findViewById(R.id.uclaIDEditText);
         errorTextView = findViewById(R.id.errorTextView);
 
-        email = emailEditText.getText().toString();
+        username = usernameEditText.getText().toString();
         password = passwordEditText.getText().toString();
-        id = UCLAIDEditText.getText().toString();
+//        id = UCLAIDEditText.getText().toString();
         boolean error = false;
-        if (email.length() == 0) {
-            errorTextView.setText("Please enter an email\n");
+        if (username.length() == 0) {
+            errorTextView.setText("Please enter an username\n");
             error = true;
         }
-        if (email.indexOf("@ucla.edu") != email.length() - 9) {
-            errorTextView.setText(errorTextView.getText().toString() + " Please enter your @ucla.edu email\n");
-            error = true;
-        }
+//        if (username.indexOf("@ucla.edu") != username.length() - 9) {
+//            errorTextView.setText(errorTextView.getText().toString() + " Please enter your @ucla.edu email\n");
+//            error = true;
+//        }
         if (password.length() == 0) {
             errorTextView.setText(errorTextView.getText().toString() + " Please enter a password\n");
             error = true;
         }
-        if (id.length() < 9 || id.length() > 9) {
-            errorTextView.setText(errorTextView.getText().toString() + " Please enter your 9-digit UCLA ID\n");
-            error = true;
-        }
+//        if (id.length() < 9 || id.length() > 9) {
+//            errorTextView.setText(errorTextView.getText().toString() + " Please enter your 9-digit UCLA ID\n");
+//            error = true;
+//        }
         if (error) return;
         processUserCredentials();
 //        if (userIsInDatabase()) {
@@ -93,7 +92,7 @@ public class LoginPage extends AppCompatActivity {
         RequestQueue queue = Volley.newRequestQueue(this);
 
 //        final InfoObject inDatabase = new InfoObject(false);
-        JsonArrayRequest userGetRequest = new JsonArrayRequest(Request.Method.GET, Constants.usersURL, new JSONArray(),
+        JsonArrayRequest userGetRequest = new JsonArrayRequest(Request.Method.GET, Constants.DATABASE_URL+"/users", new JSONArray(),
                 new Response.Listener<JSONArray>() {
                     @Override
                     public void onResponse(JSONArray userList) {
@@ -101,10 +100,11 @@ public class LoginPage extends AppCompatActivity {
                             JSONObject user = null;
                             try {
                                 user = userList.getJSONObject(i);
-                                if (user.getString("email").equals(email) /*&& user.getString("password").equals(password)*/){
+                                if (user.getString("username").equals(username) && user.getString("password").equals(password)){
 //                                     inDatabase.setInDatabase(true);
-                                     Log.d("matched: ",email);
+                                     Log.d("matched: ", username);
                                      writeCredentialsToMemory();
+                                     loginPOST();
                                      finish();
                                 }
                             } catch (JSONException e) {
@@ -127,8 +127,41 @@ public class LoginPage extends AppCompatActivity {
 //        return inDatabase.isInDatabase();
     }
     private void writeCredentialsToMemory(){
-        writeToInternalMemory(email + "\n");
+        writeToInternalMemory(username + "\n");
         writeToInternalMemory(password + "\n");
         writeToInternalMemory(id + "\n");
+    }
+    private void loginPOST(){
+        RequestQueue queue = Volley.newRequestQueue(this);
+
+        String url = Constants.DATABASE_URL+"/userLogin/?username="+username+"&password="+password;
+
+        StringRequest userPOSTRequest = new StringRequest(Request.Method.POST, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+
+                        String text = response.toString();
+//                        JSONObject obj = new JSONObject();
+//                        obj.
+                        int start = text.indexOf(":")+2;
+                        int end = text.indexOf("\"",start);
+                        text = text.substring(start, end);
+                        MainActivity.api_key = text;
+//                        try {
+//                            MainActivity.api_key = response.get("api_key").toString();
+//                        } catch (JSONException e) {
+//                            e.printStackTrace();
+//                        }
+                        Log.d("SUCCESS: ", MainActivity.api_key);
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d("wrong Username/pword: ", error.toString());
+            }
+        });
+
+        queue.add(userPOSTRequest);
     }
 }

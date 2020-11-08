@@ -7,13 +7,13 @@
     tools:context=".LoginPage">
 
     <EditText
-        android:id="@+id/emailEditText"
+        android:id="@+id/loginUsernameEditText"
         android:layout_width="306dp"
         android:layout_height="44dp"
         android:layout_marginTop="40dp"
         android:ems="10"
-        android:hint="@string/email"
-        android:inputType="textEmailAddress"
+        android:hint="@string/username"
+        android:inputType="text"
         app:layout_constraintBottom_toTopOf="@+id/passwordEditText"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.495"
@@ -30,33 +30,32 @@
         android:ems="10"
         android:hint="@string/password"
         android:inputType="textPassword"
-        app:layout_constraintBottom_toTopOf="@+id/uclaIDEditText"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.0" />
+    <!--        app:layout_constraintBottom_toTopOf="@+id/uclaIDEditText"-->
 
-    <EditText
-        android:id="@+id/uclaIDEditText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="160dp"
-        android:ems="10"
-        android:hint="@string/ucla_id"
-        android:inputType="number"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.497"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0" />
+<!--    <EditText-->
+<!--        android:id="@+id/uclaIDEditText"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginTop="160dp"-->
+<!--        android:ems="10"-->
+<!--        android:hint="@string/ucla_id"-->
+<!--        android:inputType="number"-->
+<!--        app:layout_constraintBottom_toBottomOf="parent"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintHorizontal_bias="0.497"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toTopOf="parent"-->
+<!--        app:layout_constraintVertical_bias="0.0" />-->
 
     <Button
         android:id="@+id/loginButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
         android:layout_marginBottom="24dp"
         android:background="@android:color/holo_blue_light"
         android:onClick="onLoginClick"
@@ -65,14 +64,16 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/uclaIDEditText"
+        app:layout_constraintTop_toBottomOf="@+id/passwordEditText"
         app:layout_constraintVertical_bias="0.0" />
+<!--        app:layout_constraintTop_toBottomOf="@+id/uclaIDEditText"-->
+
 
     <TextView
         android:id="@+id/errorTextView"
         android:layout_width="276dp"
         android:layout_height="76dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="50dp"
         android:layout_marginBottom="70dp"
         android:textColor="#E60B0B"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -80,7 +81,7 @@
         app:layout_constraintHorizontal_bias="0.496"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/loginButton"
-        app:layout_constraintVertical_bias="1.0" />
+        app:layout_constraintVertical_bias="0.100000024" />
 
     <Button
         android:id="@+id/newUserButton"

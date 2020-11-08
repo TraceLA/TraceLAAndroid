@@ -45,7 +45,7 @@ public class Friends extends AppCompatActivity {
         listView = findViewById(R.id.list_view);
 
         RequestQueue queue = Volley.newRequestQueue(this);
-        JsonArrayRequest userGetRequest = new JsonArrayRequest(Request.Method.GET, Constants.usersURL, new JSONArray(),
+        JsonArrayRequest userGetRequest = new JsonArrayRequest(Request.Method.GET, Constants.DATABASE_URL+"/users", new JSONArray(),
                 new Response.Listener<JSONArray>() {
                     @Override
                     public void onResponse(JSONArray userList) {

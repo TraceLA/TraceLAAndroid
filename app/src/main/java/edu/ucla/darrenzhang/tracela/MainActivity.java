@@ -22,6 +22,13 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -36,6 +43,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 
 import static edu.ucla.darrenzhang.tracela.Constants.ERROR_DIALOG_REQUEST;
 import static edu.ucla.darrenzhang.tracela.Constants.PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION;
@@ -46,6 +55,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
     private boolean mLocationPermissionGranted = false;
     private FusedLocationProviderClient mFusedLocationClient;
+    public static String username, email,api_key;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,10 +66,11 @@ public class MainActivity extends AppCompatActivity {
             Intent loginIntent = new Intent(this, LoginPage.class);
             startActivity(loginIntent);
         }
+        setCredentials();
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
     }
 
-    private void getLastKnownLocation() {
+    public void sendLocation(View view){
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
@@ -71,6 +82,33 @@ public class MainActivity extends AppCompatActivity {
                     double latitude = location.getLatitude();
                     double longitude = location.getLongitude();
                     Log.d("coordinates", "("+latitude+", "+longitude+")");
+                    RequestQueue queue = Volley.newRequestQueue(MainActivity.this);
+
+                    String url = Constants.DATABASE_URL+"/coords/?lat="+latitude+"&long="+longitude+"&username="+username+"&api_key="+api_key;
+
+                    StringRequest userPOSTRequest = new StringRequest(Request.Method.POST, url,
+                            new Response.Listener<String>() {
+                                @Override
+                                public void onResponse(String response) {
+
+                                    String text = response.toString();
+                                    Log.d("SUCCESS: ", text);
+                                }
+                            }, new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            Log.d("Send LOCATION ERROR: ", error.toString());
+                        }
+                    }){
+                        @Override
+                        public Map<String, String> getHeaders() throws AuthFailureError {
+                            Map<String, String> params = new HashMap<String, String>();
+                            params.put("api-key", api_key);
+                            return params;
+                        }
+                    };
+
+                    queue.add(userPOSTRequest);
                 }
             }
         });
@@ -93,7 +131,7 @@ public class MainActivity extends AppCompatActivity {
 //
 //    }
     public boolean internalMemoryIsEmpty(){
-        writeToInternalMemory("");
+        writeToInternalMemory(""); //this creates a "memory" file in case it was never created before
 
         FileInputStream stream = null;
         try {
@@ -113,6 +151,21 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
         return false;
+    }
+    public void setCredentials(){
+        FileInputStream stream = null;
+        try {
+            stream = openFileInput("memory");
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        InputStreamReader inputStreamReader = new InputStreamReader(stream, StandardCharsets.UTF_8);
+        try (BufferedReader reader = new BufferedReader((inputStreamReader))){
+            email = reader.readLine();
+        }catch (IOException e){
+            e.printStackTrace();
+        }
     }
     public void writeToInternalMemory(String s){
         try (FileOutputStream fos = openFileOutput("memory", Context.MODE_APPEND)){
