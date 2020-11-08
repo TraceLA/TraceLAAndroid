@@ -69,6 +69,7 @@ public class Friends extends AppCompatActivity {
                                       //  Toast.makeText(getApplicationContext(), adapter.getItem(position), Toast.LENGTH_SHORT).show();
                                         Log.d("fr", "on click");
                                         Intent friendReq = new Intent(Friends.this, FriendRequest.class);
+                                        friendReq.putExtra("friendUser", stringArrayList.get(position));
                                         finish();
                                         startActivity(friendReq);
                                     }
