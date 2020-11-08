@@ -3,6 +3,7 @@ package edu.ucla.darrenzhang.tracela;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.MenuItemCompat;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -65,7 +66,11 @@ public class Friends extends AppCompatActivity {
                                     @Override
                                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                                         //Display click item position in toast
-                                        Toast.makeText(getApplicationContext(), adapter.getItem(position), Toast.LENGTH_SHORT).show();
+                                      //  Toast.makeText(getApplicationContext(), adapter.getItem(position), Toast.LENGTH_SHORT).show();
+                                        Log.d("fr", "on click");
+                                        Intent friendReq = new Intent(Friends.this, FriendRequest.class);
+                                        finish();
+                                        startActivity(friendReq);
                                     }
                                 });
                             } catch (JSONException e) {
@@ -90,6 +95,7 @@ public class Friends extends AppCompatActivity {
 //            stringArrayList.add("User " + i);
 //        }
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
