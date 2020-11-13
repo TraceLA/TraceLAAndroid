@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
     private boolean mLocationPermissionGranted = false;
     private FusedLocationProviderClient mFusedLocationClient;
-    public static String username, email,api_key;
+    public static String username, password, id, api_key;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,13 +63,15 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         if (internalMemoryIsEmpty()) {
-            Intent loginIntent = new Intent(this, LoginPage.class);
-            startActivity(loginIntent);
+            startLoginActivity();
         }
         setCredentials();
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
     }
-
+    public void startLoginActivity(){
+        Intent loginIntent = new Intent(this, LoginPage.class);
+        startActivity(loginIntent);
+    }
     public void sendLocation(View view){
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
@@ -97,6 +99,9 @@ public class MainActivity extends AppCompatActivity {
                             }, new Response.ErrorListener() {
                         @Override
                         public void onErrorResponse(VolleyError error) {
+                            if (error.toString().equals("com.android.volley.AuthFailureError")){
+                                startLoginActivity();
+                            }
                             Log.d("Send LOCATION ERROR: ", error.toString());
                         }
                     }){
@@ -113,23 +118,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-//    @Override
-//    protected void onStart() {
-//        super.onStart();
-//
-////        Button saveBtn = findViewById(R.id.saveButton);
-//        saveBtn.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-////                EditText inputString = findViewById(R.id.inputText);
-//                writeToInternalMemory(inputString.getText().toString());
-////                Backend a = new Backend();
-////                a.getAndPOST("");
-//                displayInternalMemory();
-//            }
-//        });
-//
-//    }
+
     public boolean internalMemoryIsEmpty(){
         writeToInternalMemory(""); //this creates a "memory" file in case it was never created before
 
@@ -162,7 +151,10 @@ public class MainActivity extends AppCompatActivity {
 
         InputStreamReader inputStreamReader = new InputStreamReader(stream, StandardCharsets.UTF_8);
         try (BufferedReader reader = new BufferedReader((inputStreamReader))){
-            email = reader.readLine();
+            username = reader.readLine();
+            password = reader.readLine();
+            api_key = reader.readLine();
+            id = reader.readLine();
         }catch (IOException e){
             e.printStackTrace();
         }
