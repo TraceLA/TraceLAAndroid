@@ -77,7 +77,7 @@ public class LoginPage extends AppCompatActivity {
     }
 
     public void writeToInternalMemory(String s) {
-        try (FileOutputStream fos = openFileOutput("memory", Context.MODE_APPEND)) {
+        try (FileOutputStream fos = openFileOutput("memory", Context.MODE_PRIVATE)) {
             fos.write(s.getBytes());
         } catch (IOException e) {
             e.printStackTrace();
@@ -89,48 +89,8 @@ public class LoginPage extends AppCompatActivity {
         startActivity(createAccountIntent);
     }
 
-    private void processUserCredentials() {
-        RequestQueue queue = Volley.newRequestQueue(this);
-
-//        final InfoObject inDatabase = new InfoObject(false);
-        JsonArrayRequest userGetRequest = new JsonArrayRequest(Request.Method.GET, Constants.DATABASE_URL+"/users", new JSONArray(),
-                new Response.Listener<JSONArray>() {
-                    @Override
-                    public void onResponse(JSONArray userList) {
-                        for (int i = 0; i < userList.length(); i++) {
-                            JSONObject user = null;
-                            try {
-                                user = userList.getJSONObject(i);
-                                if (user.getString("username").equals(username) && user.getString("password").equals(password)){
-//                                     inDatabase.setInDatabase(true);
-                                     Log.d("matched: ", username);
-                                     writeCredentialsToMemory();
-                                     loginPOST();
-                                     finish();
-                                }
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-//                            if (inDatabase.isInDatabase())
-//                                break;
-                        }
-                        errorTextView.setText("Please create an account with the Sign Up button\n");
-                    }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.d("CREATE ACCOUNT: ", error.toString());
-            }
-        });
-
-        queue.add(userGetRequest);
-//        Log.d("database contains:", Boolean.toString(inDatabase.isInDatabase()));
-//        return inDatabase.isInDatabase();
-    }
     private void writeCredentialsToMemory(){
-        writeToInternalMemory(username + "\n");
-        writeToInternalMemory(password + "\n");
-        writeToInternalMemory(id + "\n");
+        writeToInternalMemory(username+'\n'+password+'\n'+MainActivity.api_key+'\n'+id);
     }
     private void loginPOST(){
         RequestQueue queue = Volley.newRequestQueue(this);
@@ -141,26 +101,19 @@ public class LoginPage extends AppCompatActivity {
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
+                        int start = response.indexOf(":")+2;
+                        int end = response.indexOf("\"",start);
+                        response = response.substring(start, end);
+                        MainActivity.api_key = response;
 
-                        String text = response.toString();
-//                        JSONObject obj = new JSONObject();
-//                        obj.
-                        int start = text.indexOf(":")+2;
-                        int end = text.indexOf("\"",start);
-                        text = text.substring(start, end);
-                        MainActivity.api_key = text;
-//                        try {
-//                            MainActivity.api_key = response.get("api_key").toString();
-//                        } catch (JSONException e) {
-//                            e.printStackTrace();
-//                        }
                         Log.d("SUCCESS: ", MainActivity.api_key);
+                        writeCredentialsToMemory();
                         finish();
                     }
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.d("wrong Username/pword: ", error.toString());
+                Log.d("wrong Username/pword", error.toString());
             }
         });
 
