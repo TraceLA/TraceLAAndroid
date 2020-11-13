@@ -51,15 +51,14 @@ public class FriendRequest extends AppCompatActivity {
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-
-                        String text = response.toString();
-//                        JSONObject obj = new JSONObject();
-//                        obj.
                         Log.d("SUCCESS: ", MainActivity.api_key);
                     }
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
+                if (error.toString().equals("com.android.volley.AuthFailureError")){
+                    startLoginActivity();
+                }
                 Log.d("FRIEND REQUEST: ", error.toString());
             }
         }){
@@ -72,5 +71,8 @@ public class FriendRequest extends AppCompatActivity {
         };
         queue.add(userPOSTRequest);
     }
-
+    public void startLoginActivity(){
+        Intent loginIntent = new Intent(this, LoginPage.class);
+        startActivity(loginIntent);
+    }
 }
