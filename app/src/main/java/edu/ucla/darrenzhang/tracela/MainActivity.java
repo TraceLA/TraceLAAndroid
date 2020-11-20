@@ -1,26 +1,33 @@
 package edu.ucla.darrenzhang.tracela;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import android.Manifest;
+import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -56,6 +63,10 @@ public class MainActivity extends AppCompatActivity {
     private boolean mLocationPermissionGranted = false;
     private FusedLocationProviderClient mFusedLocationClient;
     public static String username, password, id, api_key;
+    private ToggleButton toggle;
+    private AlarmManager alarmManager;
+    private PendingIntent pendingIntent;
+    private Intent locationIntent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,8 +77,103 @@ public class MainActivity extends AppCompatActivity {
             startLoginActivity();
         }
         setCredentials();
+        Log.d("CREDENTIALS", username+", "+password+", "+api_key+", "+id);
+
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+        //TODO: toggle button doesn't seem to work
+        toggle = (ToggleButton) findViewById(R.id.toggleUpdateLocButton);
+
+        //endUpdatingLocation();
+        //Log.d("OFF","turned off");
+        if (toggle.isChecked() && !LocationUpdates.isRunning){
+            Log.d("STart", "starting");
+            startUpdatingLocation();
+            locationIntent = new Intent(this, LocationUpdates.class);
+//            Intent intent = new Intent(this, LocationUpdates.class);
+            locationIntent.putExtra("username",username);
+            locationIntent.putExtra("password",password);
+            locationIntent.putExtra("api_key",api_key);
+            startService(locationIntent);
+//
+//            pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+//            alarmManager.setAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME, 15*60*1000, pendingIntent);
+//
+//            long repeatInterval = AlarmManager.INTERVAL_FIFTEEN_MINUTES;
+//            long triggerTime = SystemClock.elapsedRealtime()
+//                    + repeatInterval;
+//            alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME, triggerTime, repeatInterval, pendingIntent);
+
+
+//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+//                startForegroundService(intent);
+//            } else {
+//                startService(intent);
+//            }
+
+        }
+        toggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+                if (isChecked){
+                    Log.d("ON","turned on");
+                    startUpdatingLocation();
+                }else{
+                    Log.d("OFF","turned off");
+                    endUpdatingLocation();
+                }
+            }
+        });
     }
+
+    public void startUpdatingLocation(){
+        Log.d(".MainActivity", "started updating location");
+
+//        Intent intent = new Intent(this, LocationReceiver.class);
+//        intent.putExtra("username",username);
+//        intent.putExtra("password",password);
+//        intent.putExtra("api_key",api_key);
+////            startService(intent);
+//
+//        pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+//            alarmManager.setAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME, 15*60*1000, pendingIntent);
+//        }
+//
+//        long repeatInterval = AlarmManager.INTERVAL_FIFTEEN_MINUTES;
+//        long triggerTime = SystemClock.elapsedRealtime()
+//                + repeatInterval;
+//        alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME, triggerTime, repeatInterval, pendingIntent);
+
+        locationIntent = new Intent(this, LocationUpdates.class);
+        locationIntent.putExtra("username",username);
+        locationIntent.putExtra("password",password);
+        locationIntent.putExtra("api_key",api_key);
+        startService(locationIntent);
+    }
+    public void endUpdatingLocation(){
+        Log.d(".MainActivity", "ended updating location");
+        Intent intent = new Intent(this, LocationUpdates.class);
+        stopService(intent);
+//        if (alarmManager != null){
+//            alarmManager.cancel(pendingIntent);
+//        }
+    }
+//
+//    @Override
+//    protected void onStop() {
+//        Log.d(".MainActivty","onStop() called");
+//        super.onStop();
+//        startUpdatingLocation();
+//    }
+//
+//    @Override
+//    protected void onDestroy() {
+//        Log.d(".MainActivty","onDestroy() called");
+//        super.onDestroy();
+//        startUpdatingLocation();
+//    }
+
     public void startLoginActivity(){
         Intent loginIntent = new Intent(this, LoginPage.class);
         startActivity(loginIntent);
