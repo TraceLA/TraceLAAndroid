@@ -76,7 +76,7 @@ public class LoginPage extends AppCompatActivity {
 //        }
     }
 
-    public void writeToInternalMemory(String s) {
+    public  void writeToInternalMemory(String s) {
         try (FileOutputStream fos = openFileOutput("memory", Context.MODE_PRIVATE)) {
             fos.write(s.getBytes());
         } catch (IOException e) {
@@ -89,7 +89,7 @@ public class LoginPage extends AppCompatActivity {
         startActivity(createAccountIntent);
     }
 
-    private void writeCredentialsToMemory(){
+    public void writeCredentialsToMemory(){
         writeToInternalMemory(username+'\n'+password+'\n'+MainActivity.api_key+'\n'+id);
     }
     private void loginPOST(){
@@ -106,7 +106,7 @@ public class LoginPage extends AppCompatActivity {
                         response = response.substring(start, end);
                         MainActivity.api_key = response;
 
-                        Log.d("SUCCESS: ", MainActivity.api_key);
+                        Log.d(".LoginPage.class", MainActivity.api_key);
                         writeCredentialsToMemory();
                         finish();
                     }
