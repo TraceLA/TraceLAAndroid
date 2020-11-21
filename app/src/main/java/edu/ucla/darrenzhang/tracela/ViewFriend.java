@@ -39,7 +39,7 @@ public class ViewFriend extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_friends);
+        setContentView(R.layout.activity_view_friend);
 
         //Assign variable
         listView = findViewById(R.id.list_view);

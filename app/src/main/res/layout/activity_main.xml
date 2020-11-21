@@ -11,21 +11,21 @@
         android:id="@+id/newsButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="80dp"
+        android:layout_marginEnd="100dp"
         android:background="@color/light_yellow"
         android:onClick="onClickNews"
         android:text="@string/news"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/surveyButton"
-        app:layout_constraintVertical_bias="0.372" />
+        app:layout_constraintVertical_bias="0.145" />
 
     <Button
         android:id="@+id/surveyButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="122dp"
+        android:layout_height="67dp"
         android:layout_marginTop="216dp"
-        android:layout_marginEnd="40dp"
+        android:layout_marginEnd="80dp"
         android:background="@color/gold"
         android:onClick="onClickSurvey"
         android:text="@string/symptoms_survey"
@@ -34,32 +34,32 @@
 
     <Button
         android:id="@+id/friendReqButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="103dp"
+        android:layout_height="67dp"
         android:background="@color/light_yellow"
         android:onClick="onClickFriends"
         android:text="@string/friend_req"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/newsButton"
-        app:layout_constraintHorizontal_bias="0.562"
+        app:layout_constraintHorizontal_bias="0.55"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/mapButton"
-        app:layout_constraintVertical_bias="0.486" />
+        app:layout_constraintVertical_bias="0.467" />
 
     <Button
         android:id="@+id/friendViewButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="102dp"
+        android:layout_height="63dp"
         android:layout_marginBottom="12dp"
         android:background="@color/gold"
         android:onClick="onClickFriendView"
         android:text="@string/friend_view"
         app:layout_constraintBottom_toTopOf="@+id/friendReqButton"
         app:layout_constraintEnd_toStartOf="@+id/newsButton"
-        app:layout_constraintHorizontal_bias="0.554"
+        app:layout_constraintHorizontal_bias="0.52"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/mapButton"
-        app:layout_constraintVertical_bias="0.75" />
+        app:layout_constraintVertical_bias="0.636" />
 
     <Button
         android:id="@+id/mapButton"
