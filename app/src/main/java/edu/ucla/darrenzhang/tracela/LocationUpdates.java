@@ -42,7 +42,7 @@ public class LocationUpdates extends Service {
     public static boolean isRunning = false;
     private boolean mLocationPermissionGranted = false;
     private FusedLocationProviderClient mFusedLocationClient;
-    public static long TIME_INTERVAL = 4000;    //in milliseconds
+    public static long TIME_INTERVAL = 60000;    //in milliseconds
     private String username, password, api_key;
     private Intent intent;
     private LocationObject currentLocationObject;
@@ -60,6 +60,10 @@ public class LocationUpdates extends Service {
         this.intent = intent;
         this.startID = startID;
         Log.d(".LocationUpdates", "received start location updates intent");
+        if (locationCallback!= null){
+            mFusedLocationClient.removeLocationUpdates(locationCallback);
+            stopForeground(true);
+        }
         isRunning = true;
         startForegroundTask();
         return START_STICKY;
@@ -198,7 +202,7 @@ public class LocationUpdates extends Service {
                         response = response.substring(start, end);
                         api_key = response;
 
-                        Log.d("SUCCESS: ", api_key);
+                        Log.d("SUCCESS: ", api_key+MainActivity.username);
 //                        writeCredentialsToMemory();
                     }
                 }, new Response.ErrorListener() {

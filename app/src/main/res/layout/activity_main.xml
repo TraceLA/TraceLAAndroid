@@ -74,13 +74,4 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="1.0" />
 
-    <Button
-        android:id="@+id/sendLocationButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Send Location"
-        android:onClick="sendLocation"
-        tools:layout_editor_absoluteX="172dp"
-        tools:layout_editor_absoluteY="629dp" />
-
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -63,17 +63,8 @@ public class LoginPage extends AppCompatActivity {
 //            error = true;
 //        }
         if (error) return;
-//        processUserCredentials();
         loginPOST();
-//        if (userIsInDatabase()) {
-//            writeToInternalMemory(email + "\n");
-//            writeToInternalMemory(password + "\n");
-//            writeToInternalMemory(id + "\n");
-//            finish();
-//        } else {
-//            errorTextView.setText("Please create an account with the Sign Up button\n");
-//            return;
-//        }
+
     }
 
     public  void writeToInternalMemory(String s) {
