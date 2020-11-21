@@ -64,9 +64,7 @@ public class MainActivity extends AppCompatActivity {
     private FusedLocationProviderClient mFusedLocationClient;
     public static String username, password, id, api_key;
     private ToggleButton toggle;
-    private AlarmManager alarmManager;
-    private PendingIntent pendingIntent;
-    private Intent locationIntent;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,46 +78,21 @@ public class MainActivity extends AppCompatActivity {
         Log.d("CREDENTIALS", username+", "+password+", "+api_key+", "+id);
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-        alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-        //TODO: toggle button doesn't seem to work
-        toggle = (ToggleButton) findViewById(R.id.toggleUpdateLocButton);
 
-        //endUpdatingLocation();
-        //Log.d("OFF","turned off");
+        toggle = (ToggleButton) findViewById(R.id.toggleUpdateLocButton);
         if (toggle.isChecked() && !LocationUpdates.isRunning){
             Log.d("STart", "starting");
             startUpdatingLocation();
-            locationIntent = new Intent(this, LocationUpdates.class);
-//            Intent intent = new Intent(this, LocationUpdates.class);
-            locationIntent.putExtra("username",username);
-            locationIntent.putExtra("password",password);
-            locationIntent.putExtra("api_key",api_key);
-            startService(locationIntent);
-//
-//            pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-//            alarmManager.setAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME, 15*60*1000, pendingIntent);
-//
-//            long repeatInterval = AlarmManager.INTERVAL_FIFTEEN_MINUTES;
-//            long triggerTime = SystemClock.elapsedRealtime()
-//                    + repeatInterval;
-//            alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME, triggerTime, repeatInterval, pendingIntent);
-
-
-//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
-//                startForegroundService(intent);
-//            } else {
-//                startService(intent);
-//            }
-
         }
+
         toggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
                 if (isChecked){
-                    Log.d("ON","turned on");
+                    Log.d(".MainActivity","ToggleButton turned on");
                     startUpdatingLocation();
                 }else{
-                    Log.d("OFF","turned off");
+                    Log.d(".MainActivity","ToggleButton turned off");
                     endUpdatingLocation();
                 }
             }
@@ -145,34 +118,17 @@ public class MainActivity extends AppCompatActivity {
 //                + repeatInterval;
 //        alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME, triggerTime, repeatInterval, pendingIntent);
 
-        locationIntent = new Intent(this, LocationUpdates.class);
-        locationIntent.putExtra("username",username);
-        locationIntent.putExtra("password",password);
-        locationIntent.putExtra("api_key",api_key);
-        startService(locationIntent);
+        Intent startUpdateLocIntent = new Intent(this, LocationUpdates.class);
+        startUpdateLocIntent.putExtra("username",username);
+        startUpdateLocIntent.putExtra("password",password);
+        startUpdateLocIntent.putExtra("api_key",api_key);
+        startService(startUpdateLocIntent);
     }
     public void endUpdatingLocation(){
         Log.d(".MainActivity", "ended updating location");
-        Intent intent = new Intent(this, LocationUpdates.class);
-        stopService(intent);
-//        if (alarmManager != null){
-//            alarmManager.cancel(pendingIntent);
-//        }
+        Intent endUpdateLocIntent = new Intent(this, LocationUpdates.class);
+        stopService(endUpdateLocIntent);
     }
-//
-//    @Override
-//    protected void onStop() {
-//        Log.d(".MainActivty","onStop() called");
-//        super.onStop();
-//        startUpdatingLocation();
-//    }
-//
-//    @Override
-//    protected void onDestroy() {
-//        Log.d(".MainActivty","onDestroy() called");
-//        super.onDestroy();
-//        startUpdatingLocation();
-//    }
 
     public void startLoginActivity(){
         Intent loginIntent = new Intent(this, LoginPage.class);
