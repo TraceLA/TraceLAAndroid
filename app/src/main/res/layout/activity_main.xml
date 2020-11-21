@@ -4,21 +4,21 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/background_light"
+    android:background="@android:color/white"
     tools:context=".MainActivity">
 
     <Button
         android:id="@+id/newsButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="84dp"
+        android:layout_marginEnd="80dp"
+        android:background="@android:color/holo_blue_light"
         android:onClick="onClickNews"
         android:text="@string/news"
-        android:background="@android:color/holo_blue_light"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/surveyButton"
-        app:layout_constraintVertical_bias="0.67" />
+        app:layout_constraintVertical_bias="0.53" />
 
     <Button
         android:id="@+id/surveyButton"
@@ -26,25 +26,40 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="292dp"
         android:layout_marginEnd="36dp"
-        android:background="@android:color/holo_blue_light"
+        android:background="@android:color/holo_blue_dark"
         android:onClick="onClickSurvey"
         android:text="@string/symptoms_survey"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/friendsButton"
+        android:id="@+id/friendReqButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:background="@android:color/holo_blue_bright"
         android:onClick="onClickFriends"
-        android:text="@string/friends"
-        android:background="@android:color/holo_blue_light"
+        android:text="@string/friend_req"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/newsButton"
         app:layout_constraintHorizontal_bias="0.559"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/mapButton"
         app:layout_constraintVertical_bias="0.67" />
+
+    <Button
+        android:id="@+id/friendViewButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
+        android:background="@android:color/holo_blue_bright"
+        android:onClick="onClickFriendView"
+        android:text="@string/friend_view"
+        app:layout_constraintBottom_toTopOf="@+id/friendReqButton"
+        app:layout_constraintEnd_toStartOf="@+id/newsButton"
+        app:layout_constraintHorizontal_bias="0.554"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/mapButton"
+        app:layout_constraintVertical_bias="0.905" />
 
     <Button
         android:id="@+id/mapButton"

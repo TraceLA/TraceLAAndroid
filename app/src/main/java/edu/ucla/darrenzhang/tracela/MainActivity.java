@@ -200,6 +200,11 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    public void onClickFriendView(View view) {
+        Intent intent = new Intent(this, ViewFriend.class);
+        startActivity(intent);
+    }
+
     public void onClickSurvey(View view) {
         Intent intent = new Intent(this, SymptomsSurvey.class);
         startActivity(intent);

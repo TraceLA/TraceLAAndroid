@@ -12,7 +12,7 @@
         android:layout_height="match_parent"
         android:id="@+id/list_view"
         android:dividerHeight="2dp"
-        android:divider="@android:color/white"
+        android:divider="@android:color/holo_blue_dark"
         tools:listitem="@android:layout/simple_list_item_1" />
 
 </RelativeLayout>
