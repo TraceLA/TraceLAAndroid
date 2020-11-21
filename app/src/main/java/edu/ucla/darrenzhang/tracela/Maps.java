@@ -6,6 +6,7 @@ import androidx.core.app.ActivityCompat;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.view.View;
 //import android.widget.Toolbar;
 
 import com.google.android.gms.maps.GoogleMap;
@@ -46,6 +47,7 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
             return;
         }
         mMap.setMyLocationEnabled(true);
+
         // Add a marker in Sydney and move the camera
 //        LatLng sydney = new LatLng(-34, 151);
 //        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));

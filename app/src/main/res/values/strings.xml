@@ -18,4 +18,7 @@
     <string name="login">Login</string>
     <string name="update_my_location">Update My Location</string>
     <string name="friend_request">Friend Request</string>
+    <string name="togglebutton">ToggleButton</string>
+    <string name="updating_location_off">Updating Location Off</string>
+    <string name="updating_location_on">Updating Location On</string>
 </resources>

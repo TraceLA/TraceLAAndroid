@@ -1,26 +1,33 @@
 package edu.ucla.darrenzhang.tracela;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import android.Manifest;
+import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -56,6 +63,9 @@ public class MainActivity extends AppCompatActivity {
     private boolean mLocationPermissionGranted = false;
     private FusedLocationProviderClient mFusedLocationClient;
     public static String username, password, id, api_key;
+    private ToggleButton toggle;
+    private boolean sendingLocation = true;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,61 +76,98 @@ public class MainActivity extends AppCompatActivity {
             startLoginActivity();
         }
         setCredentials();
+        Log.d("CREDENTIALS", username+", "+password+", "+api_key+", "+id);
+
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-    }
-    public void startLoginActivity(){
-        Intent loginIntent = new Intent(this, LoginPage.class);
-        startActivity(loginIntent);
-    }
-    public void sendLocation(View view){
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return;
+
+        sendingLocation = getSendingBoolFromMemory();
+
+        toggle = (ToggleButton) findViewById(R.id.toggleUpdateLocButton);
+        toggle.setChecked(sendingLocation);
+        if (sendingLocation){
+            if (!LocationUpdates.isRunning) {
+                Log.d(".MainActivity", "starting");
+                startUpdatingLocation();
+            }
+        } else if (LocationUpdates.isRunning){
+            endUpdatingLocation();
         }
-        mFusedLocationClient.getLastLocation().addOnCompleteListener(new OnCompleteListener<Location>() {
+
+        toggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
-            public void onComplete(@NonNull Task<Location> task) {
-                if (task.isSuccessful()){
-                    Location location = task.getResult();
-                    double latitude = location.getLatitude();
-                    double longitude = location.getLongitude();
-                    Log.d("coordinates", "("+latitude+", "+longitude+")");
-                    RequestQueue queue = Volley.newRequestQueue(MainActivity.this);
+            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+                if (isChecked){
+                    Log.d(".MainActivity","ToggleButton turned on");
+                    sendingLocation = true;
+                    updateInternalMemoryToggleState(true);
+                    startUpdatingLocation();
 
-                    String url = Constants.DATABASE_URL+"/coords/?lat="+latitude+"&long="+longitude+"&username="+username+"&api_key="+api_key;
-
-                    StringRequest userPOSTRequest = new StringRequest(Request.Method.POST, url,
-                            new Response.Listener<String>() {
-                                @Override
-                                public void onResponse(String response) {
-
-                                    String text = response.toString();
-                                    Log.d("SUCCESS: ", text);
-                                }
-                            }, new Response.ErrorListener() {
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-                            if (error.toString().equals("com.android.volley.AuthFailureError")){
-                                startLoginActivity();
-                            }
-                            Log.d("Send LOCATION ERROR: ", error.toString());
-                        }
-                    }){
-                        @Override
-                        public Map<String, String> getHeaders() throws AuthFailureError {
-                            Map<String, String> params = new HashMap<String, String>();
-                            params.put("api-key", api_key);
-                            return params;
-                        }
-                    };
-
-                    queue.add(userPOSTRequest);
+                }else{
+                    Log.d(".MainActivity","ToggleButton turned off");
+                    sendingLocation = false;
+                    updateInternalMemoryToggleState(false);
+                    endUpdatingLocation();
                 }
             }
         });
     }
 
+    public void startUpdatingLocation(){
+        if (!LocationUpdates.isRunning) {
+            Log.d(".MainActivity", "started updating location");
+            Intent startUpdateLocIntent = new Intent(this, LocationUpdates.class);
+            startUpdateLocIntent.putExtra("username", username);
+            startUpdateLocIntent.putExtra("password", password);
+            startUpdateLocIntent.putExtra("api_key", api_key);
+
+            startService(startUpdateLocIntent);
+        }
+    }
+    public void endUpdatingLocation(){
+        Log.d(".MainActivity", "ended updating location");
+        Intent endUpdateLocIntent = new Intent(this, LocationUpdates.class);
+        stopService(endUpdateLocIntent);
+    }
+    public void updateInternalMemoryToggleState(boolean sending){
+        writeToInternalMemory(username+'\n'+password+'\n'+MainActivity.api_key+'\n'+id+'\n'+sending);
+    }
+
+    public boolean getSendingBoolFromMemory(){
+        FileInputStream stream = null;
+        try {
+            stream = openFileInput("memory");
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        InputStreamReader inputStreamReader = new InputStreamReader(stream, StandardCharsets.UTF_8);
+        try (BufferedReader reader = new BufferedReader((inputStreamReader))){
+            for (int i = 0; i<4;i++) {
+               reader.readLine();
+            }
+            String line = reader.readLine();
+            if (line == null || line.length() == 0){
+                return true;
+            }else{
+                return line.equals("true");
+            }
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+        return true;
+    }
+
+    public void startLoginActivity(){
+        Intent loginIntent = new Intent(this, LoginPage.class);
+        startActivity(loginIntent);
+    }
+
     public boolean internalMemoryIsEmpty(){
-        writeToInternalMemory(""); //this creates a "memory" file in case it was never created before
+        try (FileOutputStream fos = openFileOutput("memory", Context.MODE_APPEND)){    //this creates a "memory" file in case it was never created before
+
+        }catch(IOException e){
+            e.printStackTrace();
+        }
 
         FileInputStream stream = null;
         try {
@@ -132,7 +179,6 @@ public class MainActivity extends AppCompatActivity {
         InputStreamReader inputStreamReader = new InputStreamReader(stream, StandardCharsets.UTF_8);
         try (BufferedReader reader = new BufferedReader((inputStreamReader))){
             String line = reader.readLine();
-//            Log.d("CHECKMEMORY:",line);
             if (line == null || line.length() == 0){
                 return true;
             }
@@ -160,32 +206,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
     public void writeToInternalMemory(String s){
-        try (FileOutputStream fos = openFileOutput("memory", Context.MODE_APPEND)){
+        try (FileOutputStream fos = openFileOutput("memory", Context.MODE_PRIVATE)){
             fos.write(s.getBytes());
         }catch(IOException e){
-            e.printStackTrace();
-        }
-    }
-    public void displayInternalMemory(){
-        FileInputStream stream = null;
-        try {
-            stream = openFileInput("memory");
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-
-        InputStreamReader inputStreamReader = new InputStreamReader(stream, StandardCharsets.UTF_8);
-        StringBuilder phrase = new StringBuilder();
-
-        try (BufferedReader reader = new BufferedReader((inputStreamReader))){
-            String line = reader.readLine();
-            while(line != null){
-                phrase.append(line);
-                line = reader.readLine();
-            }
-//            TextView outputText = findViewById(R.id.displayText);
-//            outputText.setText(phrase.toString());
-        }catch (IOException e){
             e.printStackTrace();
         }
     }
