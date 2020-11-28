@@ -47,6 +47,9 @@ public class SymptomsSurvey extends AppCompatActivity {
             @Override
             public void onErrorResponse(VolleyError error) {
                 Log.d("SYMPTOMS SURVEY: ", error.toString());
+                if (error.toString().equals("com.android.volley.AuthFailureError")){
+                    startLoginActivity();
+                }
             }
         }){
             @Override
@@ -57,5 +60,9 @@ public class SymptomsSurvey extends AppCompatActivity {
             }
         };
         queue.add(userPOSTRequest);
+    }
+    public void startLoginActivity(){
+        Intent loginIntent = new Intent(this, LoginPage.class);
+        startActivity(loginIntent);
     }
 }
