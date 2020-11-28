@@ -82,7 +82,7 @@ public class LocationUpdates extends Service {
             api_key = intent.getStringExtra("api_key");
         }
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-        sendLocation();
+        startLocationUpdates();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -121,7 +121,7 @@ public class LocationUpdates extends Service {
         return null;
     }
 
-    public void sendLocation() {
+    public void startLocationUpdates() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
@@ -151,42 +151,45 @@ public class LocationUpdates extends Service {
 
 
                 if (locationNeedsToBeUpdated) {
-                    RequestQueue queue = Volley.newRequestQueue(LocationUpdates.this);
-                    String url = Constants.DATABASE_URL + "/coords/?lat=" + latitude + "&long=" + longitude + "&username=" + username + "&api_key=" + api_key;
-
-                    StringRequest userPOSTRequest = new StringRequest(Request.Method.POST, url,
-                            new Response.Listener<String>() {
-                                @Override
-                                public void onResponse(String response) {
-                                    locationNeedsToBeUpdated = false;
-                                    String text = response.toString();
-                                    Log.d(".LocationUpdate", "-------------------------------------successfully sent coordinates. " + text);
-                                }
-                            }, new Response.ErrorListener() {
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-                            if (error.toString().equals("com.android.volley.AuthFailureError")) {
-                                // startLoginActivity();
-                                updateApiKey();
-                            }
-                            Log.d(".LocationUpdate", "-------------------------------------------Error sending coordinates. " + error.toString());
-                            currentLocationObject = null;
-                        }
-                    }) {
-                        @Override
-                        public Map<String, String> getHeaders() throws AuthFailureError {
-                            Map<String, String> params = new HashMap<String, String>();
-                            params.put("api-key", api_key);
-                            return params;
-                        }
-                    };
-                    queue.add(userPOSTRequest);
+                    postLocation(latitude, longitude);
                 }
             }
         };
         mFusedLocationClient.requestLocationUpdates(locRequest, locationCallback, Looper.myLooper());
     }
 
+    private void postLocation(double latitude, double longitude){
+        RequestQueue queue = Volley.newRequestQueue(LocationUpdates.this);
+        String url = Constants.DATABASE_URL + "/coords/?lat=" + latitude + "&long=" + longitude + "&username=" + username + "&api_key=" + api_key;
+
+        StringRequest userPOSTRequest = new StringRequest(Request.Method.POST, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        locationNeedsToBeUpdated = false;
+                        String text = response.toString();
+                        Log.d(".LocationUpdate", "-------------------------------------successfully sent coordinates. " + text);
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d(".LocationUpdate", "-------------------------------------------Error sending coordinates. " + error.toString());
+                if (error.toString().equals("com.android.volley.AuthFailureError")) {
+                    // startLoginActivity();
+                    updateApiKey();
+                    postLocation(latitude, longitude);
+                }
+            }
+        }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("api-key", api_key);
+                return params;
+            }
+        };
+        queue.add(userPOSTRequest);
+    }
     private void updateApiKey() {
         RequestQueue queue = Volley.newRequestQueue(this);
 
