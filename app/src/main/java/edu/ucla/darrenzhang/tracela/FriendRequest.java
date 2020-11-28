@@ -56,10 +56,10 @@ public class FriendRequest extends AppCompatActivity {
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
+                Log.d("FRIEND REQUEST: ", error.toString());
                 if (error.toString().equals("com.android.volley.AuthFailureError")){
                     startLoginActivity();
                 }
-                Log.d("FRIEND REQUEST: ", error.toString());
             }
         }){
             @Override

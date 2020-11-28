@@ -41,7 +41,7 @@ public class SymptomsSurvey extends AppCompatActivity {
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        Log.d("SUCCESS: ", MainActivity.api_key);
+                        Log.d(".SymptomsSurvey", "successfully sent positive test: "+MainActivity.api_key);
                     }
                 }, new Response.ErrorListener() {
             @Override
