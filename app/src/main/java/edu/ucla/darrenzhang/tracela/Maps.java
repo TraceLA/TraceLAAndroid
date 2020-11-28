@@ -5,15 +5,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.Toast;
 //import android.widget.Toolbar;
 
 import com.android.volley.Request;
@@ -21,7 +17,6 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
-import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -43,6 +38,9 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
     private GoogleMap mMap;
     private LatLng myLocation;
     private FusedLocationProviderClient mFusedLocationClient;
+    private Handler handler;
+    private Runnable updateFriendsMarkers;
+    private final long UPDATE_INTERVAL = 10000; //in milliseconds
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,15 +95,32 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
             }
         });
         placeMarkersForFriends();
+
+        handler = new Handler();
+        updateFriendsMarkers = new Runnable() {
+             @Override
+             public void run() {
+                 placeMarkersForFriends();
+                 handler.postDelayed(this, UPDATE_INTERVAL);
+             }
+         };
+        handler.post(updateFriendsMarkers);
+
         // Add a marker in Sydney and move the camera
 //        LatLng sydney = new LatLng(-34, 151);
 //        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
 //        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
     }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+        handler.removeCallbacks(updateFriendsMarkers);
+    }
+
     public void placeMarkersForFriends() {
         RequestQueue queue = Volley.newRequestQueue(this);
-        JsonArrayRequest userGetRequest = new JsonArrayRequest(Request.Method.GET, Constants.DATABASE_URL + "/friends?username=" + MainActivity.username + "&reverse=true", new JSONArray(),
+        JsonArrayRequest friendsGetRequest = new JsonArrayRequest(Request.Method.GET, Constants.DATABASE_URL + "/friends?username=" + MainActivity.username + "&reverse=true", new JSONArray(),
                 new Response.Listener<JSONArray>() {
                     @Override
                     public void onResponse(JSONArray userList) {
@@ -114,6 +129,7 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
                             try {
                                 user = userList.getJSONObject(i);
                                 String username = user.getString("username_b");
+                                Log.d(".Maps",username);
                                 placeMarkerFor(username);
                             } catch (JSONException e) {
                                 e.printStackTrace();
@@ -128,7 +144,7 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
             }
         });
 
-        queue.add(userGetRequest);
+        queue.add(friendsGetRequest);
     }
 
     public void placeMarkerFor(String friendUsername) {
@@ -137,6 +153,7 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
                 new Response.Listener<JSONArray>() {
                     @Override
                     public void onResponse(JSONArray coordinates) {
+                        Log.d(".Maps",friendUsername+" location list is: "+coordinates.length()+" long");
                        if (coordinates.length()>0) {
                                 try{
                                     JSONObject coordinate = coordinates.getJSONObject(coordinates.length()-1);
@@ -144,6 +161,7 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
                                     double longitude = coordinate.getDouble("lng");
                                     LatLng friend = new LatLng(latitude, longitude);
                                     mMap.addMarker(new MarkerOptions().position(friend).title(friendUsername));
+                                    Log.d(".Maps", "Marker was placed for "+friendUsername+" at ( "+latitude+", "+longitude+")");
                                 }catch (JSONException e){
                                     Log.d(".Maps","error processing location data: "+e.toString());
                                 }
@@ -155,5 +173,6 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
                 Log.d(".Maps", "Getting coordinates for " + friendUsername + ": " + error.toString());
             }
         });
+        queue.add(coordGetRequest);
     }
 }
