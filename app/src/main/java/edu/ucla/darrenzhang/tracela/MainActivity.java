@@ -62,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
     private boolean mLocationPermissionGranted = false;
     private FusedLocationProviderClient mFusedLocationClient;
-    public static String username, password, id, api_key;
+    public static String username, password, api_key;
     private ToggleButton toggle;
     private boolean sendingLocation = true;
 
@@ -76,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
             startLoginActivity();
         }
         setCredentials();
-        Log.d("CREDENTIALS", username+", "+password+", "+api_key+", "+id);
+        Log.d("CREDENTIALS", username+", "+password+", "+api_key);
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
@@ -129,7 +129,7 @@ public class MainActivity extends AppCompatActivity {
         stopService(endUpdateLocIntent);
     }
     public void updateInternalMemoryToggleState(boolean sending){
-        writeToInternalMemory(username+'\n'+password+'\n'+MainActivity.api_key+'\n'+id+'\n'+sending);
+        writeToInternalMemory(username+'\n'+password+'\n'+MainActivity.api_key+'\n'+sending);
     }
 
     public boolean getSendingBoolFromMemory(){
@@ -142,7 +142,7 @@ public class MainActivity extends AppCompatActivity {
 
         InputStreamReader inputStreamReader = new InputStreamReader(stream, StandardCharsets.UTF_8);
         try (BufferedReader reader = new BufferedReader((inputStreamReader))){
-            for (int i = 0; i<4;i++) {
+            for (int i = 0; i<3;i++) {
                reader.readLine();
             }
             String line = reader.readLine();
@@ -200,7 +200,6 @@ public class MainActivity extends AppCompatActivity {
             username = reader.readLine();
             password = reader.readLine();
             api_key = reader.readLine();
-            id = reader.readLine();
         }catch (IOException e){
             e.printStackTrace();
         }

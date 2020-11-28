@@ -81,7 +81,7 @@ public class LoginPage extends AppCompatActivity {
     }
 
     public void writeCredentialsToMemory(){
-        writeToInternalMemory(username+'\n'+password+'\n'+MainActivity.api_key+'\n'+id);
+        writeToInternalMemory(username+'\n'+password+'\n'+MainActivity.api_key);
     }
     private void loginPOST(){
         RequestQueue queue = Volley.newRequestQueue(this);
@@ -96,7 +96,8 @@ public class LoginPage extends AppCompatActivity {
                         int end = response.indexOf("\"",start);
                         response = response.substring(start, end);
                         MainActivity.api_key = response;
-
+                        MainActivity.username = username;
+                        MainActivity.password = password;
                         Log.d(".LoginPage.class", MainActivity.api_key);
                         writeCredentialsToMemory();
                         finish();
