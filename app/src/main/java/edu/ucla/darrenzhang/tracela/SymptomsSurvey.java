@@ -36,7 +36,7 @@ public class SymptomsSurvey extends AppCompatActivity {
 
         RequestQueue queue = Volley.newRequestQueue(this);
 
-        String url = Constants.DATABASE_URL + "/results?friend_username=" + MainActivity.username+"&result=true&date=11-27-2020";
+        String url = Constants.DATABASE_URL + "/results?username=" + MainActivity.username+"&result=true&date=11-27-2020";
         StringRequest userPOSTRequest = new StringRequest(Request.Method.POST, url,
                 new Response.Listener<String>() {
                     @Override
