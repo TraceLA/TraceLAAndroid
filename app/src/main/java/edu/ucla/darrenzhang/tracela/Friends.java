@@ -55,7 +55,9 @@ public class Friends extends AppCompatActivity {
                             try {
                                 user = userList.getJSONObject(i);
                                 username = user.getString("username");
-                                stringArrayList.add(username);
+                                if (!username.equals(MainActivity.username)) {
+                                    stringArrayList.add(username);
+                                }
                                 //Initialize adapter
                                 adapter = new ArrayAdapter<>(Friends.this, android.R.layout.simple_list_item_1, stringArrayList);
 
