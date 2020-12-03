@@ -45,7 +45,7 @@ public class ViewFriend extends AppCompatActivity {
         listView = findViewById(R.id.list_view);
 
         RequestQueue queue = Volley.newRequestQueue(this);
-        JsonArrayRequest userGetRequest = new JsonArrayRequest(Request.Method.GET, Constants.DATABASE_URL+"/friends?username=" + MainActivity.username+"&reverse=true", new JSONArray(),
+        JsonArrayRequest userGetRequest = new JsonArrayRequest(Request.Method.GET, Constants.DATABASE_URL+"/friends?reverse=true&username=" + MainActivity.username, new JSONArray(),
                 new Response.Listener<JSONArray>() {
                     @Override
                     public void onResponse(JSONArray userList) {
@@ -53,7 +53,7 @@ public class ViewFriend extends AppCompatActivity {
                             JSONObject user = null;
                             try {
                                 user = userList.getJSONObject(i);
-                                FriendUsername = user.getString("username_b");
+                                FriendUsername = user.getString("username_a");
                                 stringArrayList.add(FriendUsername);
                                 //Initialize adapter
                                 adapter = new ArrayAdapter<>(ViewFriend.this, android.R.layout.simple_list_item_1, stringArrayList);
