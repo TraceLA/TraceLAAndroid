@@ -19,6 +19,7 @@ import android.widget.CompoundButton;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -37,6 +38,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 
 import static edu.ucla.darrenzhang.tracela.Constants.ERROR_DIALOG_REQUEST;
 import static edu.ucla.darrenzhang.tracela.Constants.PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION;
@@ -136,14 +139,21 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onErrorResponse(VolleyError error) {
                 Log.d(".MainActivty", "updating sharing permissions to "+sharingState+": "+error.toString());
-                if (error.toString().equals("android.volley.AuthFailureError")) {
-                    startLoginActivity();
-                }
                 sharingWithFriends = !sharingState;
                 updateInternalMemorySharingPermissions(!sharingState);
                 toggleFriendSharing.setChecked(!sharingState);
+                if (error.toString().equals("com.android.volley.AuthFailureError")) {
+                    startLoginActivity();
+                }
             }
-        });
+        }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("api-key", api_key);
+                return params;
+            }
+        };
 
         queue.add(updateFriendSharingPermissions );
     }
