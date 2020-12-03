@@ -311,6 +311,11 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    public void onClickAboutUs(View view) {
+        Intent intent = new Intent(this, AboutUs.class);
+        startActivity(intent);
+    }
+
     private boolean checkMapServices(){
         if(isServicesOK()){
             if(isMapsEnabled()){

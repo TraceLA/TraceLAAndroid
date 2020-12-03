@@ -32,6 +32,17 @@ public class SymptomsSurvey extends AppCompatActivity {
         finish();
     }
 
+    public void onClickNegative(View view) {
+        Log.d("friend", "onclick");
+        sendRequest2();
+        finish();
+    }
+
+    public void startLoginActivity(){
+        Intent loginIntent = new Intent(this, LoginPage.class);
+        startActivity(loginIntent);
+    }
+
     private void sendRequest() {
 
         RequestQueue queue = Volley.newRequestQueue(this);
@@ -61,8 +72,34 @@ public class SymptomsSurvey extends AppCompatActivity {
         };
         queue.add(userPOSTRequest);
     }
-    public void startLoginActivity(){
-        Intent loginIntent = new Intent(this, LoginPage.class);
-        startActivity(loginIntent);
+
+    private void sendRequest2() {
+
+        RequestQueue queue = Volley.newRequestQueue(this);
+
+        String url = Constants.DATABASE_URL + "/results?username=" + MainActivity.username+"&result=false&date=11-27-2020";
+        StringRequest userPOSTRequest = new StringRequest(Request.Method.POST, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        Log.d(".SymptomsSurvey", "successfully sent positive test: "+MainActivity.api_key);
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d("SYMPTOMS SURVEY: ", error.toString());
+                if (error.toString().equals("com.android.volley.AuthFailureError")){
+                    startLoginActivity();
+                }
+            }
+        }){
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("api-key", MainActivity.api_key);
+                return params;
+            }
+        };
+        queue.add(userPOSTRequest);
     }
 }
