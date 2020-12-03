@@ -1,35 +1,24 @@
 package edu.ucla.darrenzhang.tracela;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import android.Manifest;
-import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.location.Location;
 import android.location.LocationManager;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.SystemClock;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.CompoundButton;
-import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
-import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -40,8 +29,6 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -50,8 +37,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
 
 import static edu.ucla.darrenzhang.tracela.Constants.ERROR_DIALOG_REQUEST;
 import static edu.ucla.darrenzhang.tracela.Constants.PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION;
@@ -65,6 +50,8 @@ public class MainActivity extends AppCompatActivity {
     public static String username, password, api_key;
     private ToggleButton toggle;
     private boolean sendingLocation = true;
+    private ToggleButton toggleFriendSharing;
+    private boolean sharingWithFriends=true;
 
 
     @Override
@@ -81,9 +68,13 @@ public class MainActivity extends AppCompatActivity {
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
         sendingLocation = getSendingBoolFromMemory();
-
         toggle = (ToggleButton) findViewById(R.id.toggleUpdateLocButton);
+
+        toggleFriendSharing = findViewById(R.id.shareLocationToggleBtn);
+        sharingWithFriends = getSharingPermissionsFromMemory();
+
         toggle.setChecked(sendingLocation);
+        toggle.setChecked(sharingWithFriends);
         if (sendingLocation){
             if (!LocationUpdates.isRunning) {
                 Log.d(".MainActivity", "starting");
@@ -97,20 +88,66 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
                 if (isChecked){
-                    Log.d(".MainActivity","ToggleButton turned on");
-                    sendingLocation = true;
-                    updateInternalMemoryToggleState(true);
-                    startUpdatingLocation();
-
+                        Log.d(".MainActivity", "ToggleButton turned on");
+                        sendingLocation = true;
+                        updateInternalMemoryToggleState(true);
+                        startUpdatingLocation();
                 }else{
-                    Log.d(".MainActivity","ToggleButton turned off");
-                    sendingLocation = false;
-                    updateInternalMemoryToggleState(false);
-                    endUpdatingLocation();
+                        Log.d(".MainActivity", "ToggleButton turned off");
+                        sendingLocation = false;
+                        updateInternalMemoryToggleState(false);
+                        endUpdatingLocation();
+                }
+            }
+        });
+
+        toggleFriendSharing.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+                if (isChecked){
+                    if (!sharingWithFriends) {
+                        sharingWithFriends = true;
+                        updateInternalMemorySharingPermissions(true);
+                        postSharingWithFriendsPermissions(true);
+                    }
+                } else {
+                    if (sharingWithFriends) {
+                        sharingWithFriends = false;
+                        updateInternalMemorySharingPermissions(false);
+                        postSharingWithFriendsPermissions(false);
+                    }
                 }
             }
         });
     }
+    public void postSharingWithFriendsPermissions(boolean sharingState){
+        int msg = sharingState ? 1 : 0;
+        RequestQueue queue = Volley.newRequestQueue(this);
+
+        String url = Constants.DATABASE_URL+"/userPrivacy/?allowSharing="+msg;
+
+        StringRequest updateFriendSharingPermissions = new StringRequest(Request.Method.POST, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        Log.d(".MainActivity", "successfully update sharing permissions to "+ (sharingState ? "on":"off"));
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d(".MainActivty", "updating sharing permissions to "+sharingState+": "+error.toString());
+                if (error.toString().equals("android.volley.AuthFailureError")) {
+                    startLoginActivity();
+                }
+                sharingWithFriends = !sharingState;
+                updateInternalMemorySharingPermissions(!sharingState);
+                toggleFriendSharing.setChecked(!sharingState);
+            }
+        });
+
+        queue.add(updateFriendSharingPermissions );
+    }
+
 
     public void startUpdatingLocation(){
         if (!LocationUpdates.isRunning) {
@@ -129,9 +166,36 @@ public class MainActivity extends AppCompatActivity {
         stopService(endUpdateLocIntent);
     }
     public void updateInternalMemoryToggleState(boolean sending){
-        writeToInternalMemory(username+'\n'+password+'\n'+MainActivity.api_key+'\n'+sending);
+        writeToInternalMemory(username+'\n'+password+'\n'+MainActivity.api_key+'\n'+sending+'\n'+sharingWithFriends);
+    }
+    public void updateInternalMemorySharingPermissions(boolean sharing){
+        writeToInternalMemory(username+'\n'+password+'\n'+MainActivity.api_key+'\n'+sendingLocation+'\n'+sharing);
     }
 
+    public boolean getSharingPermissionsFromMemory(){
+        FileInputStream stream = null;
+        try {
+            stream = openFileInput("memory");
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        InputStreamReader inputStreamReader = new InputStreamReader(stream, StandardCharsets.UTF_8);
+        try (BufferedReader reader = new BufferedReader((inputStreamReader))){
+            for (int i = 0; i<4;i++) {
+                reader.readLine();
+            }
+            String line = reader.readLine();
+            if (line == null || line.length() == 0){
+                return true;
+            }else{
+                return line.equals("true");
+            }
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+        return true;
+    }
     public boolean getSendingBoolFromMemory(){
         FileInputStream stream = null;
         try {
