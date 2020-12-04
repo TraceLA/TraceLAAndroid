@@ -11,7 +11,6 @@ import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
-//import android.widget.Toolbar;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -121,7 +120,7 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
 
     public void placeMarkersForFriends() {
         RequestQueue queue = Volley.newRequestQueue(this);
-        JsonArrayRequest friendsGetRequest = new JsonArrayRequest(Request.Method.GET, Constants.DATABASE_URL + "/friends?username=" + MainActivity.username + "&reverse=true", new JSONArray(),
+        JsonArrayRequest friendsGetRequest = new JsonArrayRequest(Request.Method.GET, Constants.DATABASE_URL + "/friends?username=" + MainActivity.username + "&confirmed=true", new JSONArray(),
                 new Response.Listener<JSONArray>() {
                     @Override
                     public void onResponse(JSONArray userList) {
@@ -153,7 +152,7 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
 
     public void placeMarkerFor(String friendUsername) {
         RequestQueue queue = Volley.newRequestQueue(this);
-        JsonArrayRequest coordGetRequest = new JsonArrayRequest(Request.Method.GET, Constants.DATABASE_URL + "/coords?username=" + friendUsername+"&justLocation=true", new JSONArray(),
+        JsonArrayRequest coordGetRequest = new JsonArrayRequest(Request.Method.GET, Constants.DATABASE_URL + "/coords?username=" + friendUsername, new JSONArray(),
                 new Response.Listener<JSONArray>() {
                     @Override
                     public void onResponse(JSONArray coordinates) {
