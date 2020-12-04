@@ -4,7 +4,7 @@
     <string name="friend_req">Request Friend</string>
     <string name="friend_view">View Friends</string>
     <string name="symptoms_survey">Symptoms Survey</string>
-    <string name="news">News</string>
+    <string name="news">Exposure</string>
     <string name="map">Map</string>
     <string name="title_activity_maps">Map</string>
     <string name="create_account">Create Account</string>
@@ -26,5 +26,6 @@
     <string name="sharing_location_with_friends">Sharing Location With Friends</string>
     <string name="about_us">About Us</string>
     <string name="logout">Logout</string>
+    <string name="check_for_exposure">Check for Exposure</string>
 
 </resources>
