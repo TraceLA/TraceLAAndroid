@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
@@ -141,6 +142,9 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
             @Override
             public void onErrorResponse(VolleyError error) {
                 Log.d(".Maps", error.toString());
+                if (error.toString().equals("com.android.volley.AuthFailureError")){
+                    startLoginActivity();
+                }
             }
         });
 
@@ -171,8 +175,15 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
             @Override
             public void onErrorResponse(VolleyError error) {
                 Log.d(".Maps", "Getting coordinates for " + friendUsername + ": " + error.toString());
+                if (error.toString().equals("com.android.volley.AuthFailureError")){
+                    startLoginActivity();
+                }
             }
         });
         queue.add(coordGetRequest);
+    }
+    public void startLoginActivity(){
+        Intent loginIntent = new Intent(this, LoginPage.class);
+        startActivity(loginIntent);
     }
 }
