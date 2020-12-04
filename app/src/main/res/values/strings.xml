@@ -22,5 +22,9 @@
     <string name="updating_location_off">Updating Location Off</string>
     <string name="updating_location_on">Updating Location On</string>
     <string name="welcome">Welcome!</string>
+    <string name="not_sharing_location_with_friends">Not Sharing Location With Friends</string>
+    <string name="sharing_location_with_friends">Sharing Location With Friends</string>
+    <string name="about_us">About Us</string>
+    <string name="logout">Logout</string>
 
 </resources>

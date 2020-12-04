@@ -14,8 +14,8 @@
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
-        android:textOff="Not Sharing Location With Friends"
-        android:textOn="Sharing Location With Friends"
+        android:textOff="@string/not_sharing_location_with_friends"
+        android:textOn="@string/sharing_location_with_friends"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
@@ -111,7 +111,7 @@
         android:layout_marginEnd="68dp"
         android:background="@color/light_yellow"
         android:onClick="onClickAboutUs"
-        android:text="About Us"
+        android:text="@string/about_us"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/surveyButton"
@@ -134,5 +134,23 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="1.0" />
+
+    <Button
+        android:id="@+id/logoutBtn"
+        android:layout_width="50dp"
+        android:layout_height="28dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:padding="0sp"
+        android:text="@string/logout"
+        android:textSize="10sp"
+        android:onClick="logout"
+        app:layout_constraintBottom_toTopOf="@+id/welcome"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

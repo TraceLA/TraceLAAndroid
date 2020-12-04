@@ -283,6 +283,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public void logout(View view){
+        writeToInternalMemory("");
+        startLoginActivity();
+    }
     public void onClickNews(View view) {
         Intent intent = new Intent(this, NewsPage.class);
         startActivity(intent);
