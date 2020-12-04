@@ -285,6 +285,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void logout(View view){
         writeToInternalMemory("");
+        endUpdatingLocation();
         startLoginActivity();
     }
     public void onClickNews(View view) {
