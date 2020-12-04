@@ -77,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
         sharingWithFriends = getSharingPermissionsFromMemory();
 
         toggle.setChecked(sendingLocation);
-        toggle.setChecked(sharingWithFriends);
+        toggleFriendSharing.setChecked(sharingWithFriends);
         if (sendingLocation){
             if (!LocationUpdates.isRunning) {
                 Log.d(".MainActivity", "starting");
@@ -109,14 +109,10 @@ public class MainActivity extends AppCompatActivity {
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
                 if (isChecked){
                     if (!sharingWithFriends) {
-                        sharingWithFriends = true;
-                        updateInternalMemorySharingPermissions(true);
                         postSharingWithFriendsPermissions(true);
                     }
                 } else {
                     if (sharingWithFriends) {
-                        sharingWithFriends = false;
-                        updateInternalMemorySharingPermissions(false);
                         postSharingWithFriendsPermissions(false);
                     }
                 }
@@ -134,13 +130,14 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(String response) {
                         Log.d(".MainActivity", "successfully update sharing permissions to "+ (sharingState ? "on":"off"));
+                        sharingWithFriends = sharingState;
+                        updateInternalMemorySharingPermissions(sharingState);
                     }
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
                 Log.d(".MainActivty", "updating sharing permissions to "+sharingState+": "+error.toString());
                 sharingWithFriends = !sharingState;
-                updateInternalMemorySharingPermissions(!sharingState);
                 toggleFriendSharing.setChecked(!sharingState);
                 if (error.toString().equals("com.android.volley.AuthFailureError")) {
                     startLoginActivity();
@@ -319,7 +316,6 @@ public class MainActivity extends AppCompatActivity {
     private boolean checkMapServices(){
         if(isServicesOK()){
             if(isMapsEnabled()){
-//                getLastKnownLocation();
                 return true;
             }
         }
@@ -397,7 +393,6 @@ public class MainActivity extends AppCompatActivity {
             if (grantResults.length > 0
                     && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 mLocationPermissionGranted = true;
-//                getLastKnownLocation();
             }
         }
     }
@@ -409,7 +404,6 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode == PERMISSIONS_REQUEST_ENABLE_GPS){
             if(!mLocationPermissionGranted){
                 getLocationPermission();
-//                getLastKnownLocation();
             }
         }
 
