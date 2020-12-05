@@ -127,7 +127,7 @@ public class CheckExposureReceiver extends BroadcastReceiver {
     private void deliverNotification(Context context, String msg) {
         // Create the content intent for the notification, which launches
         // this activity
-        Intent contentIntent = new Intent(context, MainActivity.class);
+        Intent contentIntent = new Intent(context, NewsPage.class);
 
         PendingIntent contentPendingIntent = PendingIntent.getActivity
                 (context, NOTIFICATION_ID, contentIntent, PendingIntent
@@ -139,6 +139,8 @@ public class CheckExposureReceiver extends BroadcastReceiver {
                 .setSmallIcon(R.drawable.ic_launcher_background)
                 .setContentTitle("TraceLA COVID-19 Exposure Alert")
                 .setContentText(msg)
+                .setStyle(new NotificationCompat.BigTextStyle()
+                        .bigText(msg))
                 .setContentIntent(contentPendingIntent)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setAutoCancel(true)
