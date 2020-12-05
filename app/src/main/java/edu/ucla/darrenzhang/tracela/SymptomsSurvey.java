@@ -44,9 +44,9 @@ public class SymptomsSurvey extends AppCompatActivity {
                     etDate.setVisibility(View.VISIBLE);
                     etAddress.setVisibility(View.VISIBLE);
                 }else{
-                    etOtherUsername.setVisibility(View.INVISIBLE);
-                    etDate.setVisibility(View.INVISIBLE);
-                    etAddress.setVisibility(View.INVISIBLE);
+                    etOtherUsername.setVisibility(View.GONE);
+                    etDate.setVisibility(View.GONE);
+                    etAddress.setVisibility(View.GONE);
                 }
             }
         });
