@@ -113,6 +113,11 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="edu.ucla.darrenzhang.tracela.MainActivity" />
         </activity>
+        <receiver
+            android:name=".CheckExposureReceiver"
+            android:enabled="true"
+            android:exported="false">
+        </receiver>
     </application>
 
 </manifest>
