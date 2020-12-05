@@ -63,12 +63,12 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/friendReqButton"
+        android:id="@+id/friendButton"
         android:layout_width="103dp"
         android:layout_height="67dp"
         android:background="@color/light_yellow"
         android:onClick="onClickFriends"
-        android:text="@string/friend_req"
+        android:text="Friend Activity"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/newsButton"
         app:layout_constraintHorizontal_bias="0.55"
@@ -76,20 +76,6 @@
         app:layout_constraintTop_toBottomOf="@+id/mapButton"
         app:layout_constraintVertical_bias="0.467" />
 
-    <Button
-        android:id="@+id/friendViewButton"
-        android:layout_width="102dp"
-        android:layout_height="63dp"
-        android:layout_marginBottom="12dp"
-        android:background="@color/gold"
-        android:onClick="onClickFriendView"
-        android:text="@string/friend_view"
-        app:layout_constraintBottom_toTopOf="@+id/friendReqButton"
-        app:layout_constraintEnd_toStartOf="@+id/newsButton"
-        app:layout_constraintHorizontal_bias="0.52"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/mapButton"
-        app:layout_constraintVertical_bias="0.636" />
 
     <Button
         android:id="@+id/mapButton"

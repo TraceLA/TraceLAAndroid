@@ -11,7 +11,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.SearchView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.MenuItemCompat;
@@ -29,23 +28,20 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-public class ViewFriend extends AppCompatActivity {
-    //Initialize variable
+public class ViewConfirmed extends AppCompatActivity {
     ListView listView;
     ArrayList<String> stringArrayList = new ArrayList<>();
     ArrayAdapter<String> adapter;
-    String FriendUsername;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_view_friend);
+        setContentView(R.layout.activity_view_confirmed);
 
-        //Assign variable
         listView = findViewById(R.id.list_view);
 
         RequestQueue queue = Volley.newRequestQueue(this);
-        JsonArrayRequest userGetRequest = new JsonArrayRequest(Request.Method.GET, Constants.DATABASE_URL+"/friends?reverse=true&confirmed=false&username=" + MainActivity.username, new JSONArray(),
+        JsonArrayRequest userGetRequest = new JsonArrayRequest(Request.Method.GET, Constants.DATABASE_URL+"/friends?reverse=true&confirmed=true&username=" + MainActivity.username, new JSONArray(),
                 new Response.Listener<JSONArray>() {
                     @Override
                     public void onResponse(JSONArray userList) {
@@ -53,10 +49,9 @@ public class ViewFriend extends AppCompatActivity {
                             JSONObject user = null;
                             try {
                                 user = userList.getJSONObject(i);
-                                FriendUsername = user.getString("username_a");
-                                stringArrayList.add(FriendUsername);
+                                stringArrayList.add(user.getString("username_a"));
                                 //Initialize adapter
-                                adapter = new ArrayAdapter<>(ViewFriend.this, android.R.layout.simple_list_item_1, stringArrayList);
+                                adapter = new ArrayAdapter<>(ViewConfirmed.this, android.R.layout.simple_list_item_1, stringArrayList);
 
                                 //Set adapter on list view
                                 listView.setAdapter(adapter);
@@ -65,10 +60,6 @@ public class ViewFriend extends AppCompatActivity {
                                     @Override
                                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                                         //Display click item position in toast
-                                        Intent confirm = new Intent(ViewFriend.this, SetConfirm.class);
-                                        confirm.putExtra("confirmFriend", stringArrayList.get(position));
-                                        finish();
-                                        startActivity(confirm);
                                     }
                                 });
                             } catch (JSONException e) {
@@ -86,14 +77,7 @@ public class ViewFriend extends AppCompatActivity {
         queue.add(userGetRequest);
 
         Log.d("string contents", stringArrayList.toString());
-
-
-        //Add item in array list
-//        for (int i = 0; i <= 100; i++) {
-//            stringArrayList.add("User " + i);
-//        }
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -121,4 +105,5 @@ public class ViewFriend extends AppCompatActivity {
         });
         return super.onCreateOptionsMenu(menu);
     }
+
 }

@@ -113,6 +113,27 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="edu.ucla.darrenzhang.tracela.MainActivity" />
         </activity>
+        <activity
+            android:name=".FriendGeneral"
+            android:parentActivityName=".MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="edu.ucla.darrenzhang.tracela.MainActivity" />
+        </activity>
+        <activity
+            android:name=".ViewConfirmed"
+            android:parentActivityName=".MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="edu.ucla.darrenzhang.tracela.MainActivity" />
+        </activity>
+        <activity
+        android:name=".SetConfirm"
+        android:parentActivityName=".MainActivity">
+        <meta-data
+            android:name="android.support.PARENT_ACTIVITY"
+            android:value="edu.ucla.darrenzhang.tracela.MainActivity" />
+    </activity>
         <receiver
             android:name=".CheckExposureReceiver"
             android:enabled="true"

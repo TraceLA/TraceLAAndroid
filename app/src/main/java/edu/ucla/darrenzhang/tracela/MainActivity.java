@@ -351,12 +351,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onClickFriends(View view) {
-        Intent intent = new Intent(this, Friends.class);
-        startActivity(intent);
-    }
-
-    public void onClickFriendView(View view) {
-        Intent intent = new Intent(this, ViewFriend.class);
+        Intent intent = new Intent(this, FriendGeneral.class);
         startActivity(intent);
     }
 
