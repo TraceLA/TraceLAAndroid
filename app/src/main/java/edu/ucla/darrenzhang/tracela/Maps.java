@@ -54,6 +54,7 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
     private TileOverlay tileOverlay;
     private HeatmapTileProvider provider;
     private boolean heatMapUninitialized = true;
+    private LatLng currLoc = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,8 +102,8 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
                         double latitude = location.getLatitude();
                         double longitude = location.getLongitude();
                         Log.d(".Maps", "current location: (" + latitude + ", " + longitude + ")");
-                        LatLng latlngCurrLoc = new LatLng(location.getLatitude(), location.getLongitude());
-                        mMap.moveCamera(CameraUpdateFactory.newLatLng(latlngCurrLoc));
+                        currLoc = new LatLng(location.getLatitude(), location.getLongitude());
+                        mMap.moveCamera(CameraUpdateFactory.newLatLng(currLoc));
                     }
                 }
             }
@@ -110,6 +111,9 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
         placeMarkersForFriends();
         getAllLocationData();
 
+        if (currLoc!= null){
+            mMap.moveCamera(CameraUpdateFactory.newLatLng(currLoc));
+        }
         handler = new Handler();
         updateFriendsMarkers = new Runnable() {
              @Override
@@ -163,7 +167,7 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
                         HashMap<String, Date> usernames = new HashMap<>();
                         List<LatLng> locationData = new ArrayList<>();
                         ArrayList<String> coordinatesUsername = new ArrayList<>();
-                        ArrayList<Marker> markers = new ArrayList<>();
+//                        ArrayList<Marker> markers = new ArrayList<>();
                         for (int i = 0; i <coordinates.length(); i++) {
                             JSONObject coordinate = null;
                             try {
@@ -175,14 +179,14 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
                                     double longitude = coordinate.getDouble("lng");
                                     LatLng latLng = new LatLng(latitude, longitude);
                                     Log.d(".Maps", "looping through all location data: (" + latitude + ", " + longitude + ")");
-                                    markers.add(mMap.addMarker(new MarkerOptions().position(latLng).title(username)));
+//                                    markers.add(mMap.addMarker(new MarkerOptions().position(latLng).title(username)));
                                     if (usernames.containsKey(username)){   //if this is an updated coordinate for an already visited user
                                         for (int j = 0; j <coordinatesUsername.size(); j++){    //remove the old coordinate from locationData
                                             if (coordinatesUsername.get(j).equals(username)){
                                                 coordinatesUsername.remove(j);
                                                 locationData.remove(j);
-                                                markers.get(j).remove();
-                                                markers.remove(j);
+//                                                markers.get(j).remove();
+//                                                markers.remove(j);
                                                 break;
                                             }
                                         }
@@ -207,9 +211,6 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
             @Override
             public void onErrorResponse(VolleyError error) {
                 Log.d(".Maps", "Trying to get list of all coordinates: "+error.toString());
-                if (error.toString().equals("com.android.volley.AuthFailureError")){
-                    startLoginActivity();
-                }
             }
         });
 
@@ -217,7 +218,7 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
     }
     public void placeMarkersForFriends() {
         RequestQueue queue = Volley.newRequestQueue(this);
-        JsonArrayRequest friendsGetRequest = new JsonArrayRequest(Request.Method.GET, Constants.DATABASE_URL + "/friends?username=" + MainActivity.username + "&confirmed=true", new JSONArray(),
+        JsonArrayRequest friendsGetRequest = new JsonArrayRequest(Request.Method.GET, Constants.DATABASE_URL + "/friends?username=" + MainActivity.username + "&reverse=true&confirmed=true", new JSONArray(),
                 new Response.Listener<JSONArray>() {
                     @Override
                     public void onResponse(JSONArray userList) {
@@ -225,7 +226,7 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
                             JSONObject user = null;
                             try {
                                 user = userList.getJSONObject(i);
-                                String username = user.getString("username_b");
+                                String username = user.getString("username_a");
                                 Log.d(".Maps",username);
                                 placeMarkerFor(username);
                             } catch (JSONException e) {
@@ -238,9 +239,6 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
             @Override
             public void onErrorResponse(VolleyError error) {
                 Log.d(".Maps", error.toString());
-                if (error.toString().equals("com.android.volley.AuthFailureError")){
-                    startLoginActivity();
-                }
             }
         });
 
@@ -253,7 +251,7 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
                 new Response.Listener<JSONArray>() {
                     @Override
                     public void onResponse(JSONArray coordinates) {
-                        Log.d(".Maps",friendUsername+" location list is: "+coordinates.length()+" long");
+                        Log.d(".Maps",friendUsername+"'s location list is "+coordinates.length()+" long");
                        if (coordinates.length()>0) {
                                 try{
                                     JSONObject coordinate = coordinates.getJSONObject(coordinates.length()-1);
@@ -270,16 +268,13 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.d(".Maps", "Getting coordinates for " + friendUsername + ": " + error.toString());
                 if (error.toString().equals("com.android.volley.AuthFailureError")){
-                    startLoginActivity();
+                    Log.d(".Maps", "Can't get coordinates for "+friendUsername+ " because they have turned off location sharing with friends");
+                }else{
+                    Log.d(".Maps", "Error Getting coordinates for " + friendUsername + ": " + error.toString());
                 }
             }
         });
         queue.add(coordGetRequest);
-    }
-    public void startLoginActivity(){
-        Intent loginIntent = new Intent(this, LoginPage.class);
-        startActivity(loginIntent);
     }
 }
