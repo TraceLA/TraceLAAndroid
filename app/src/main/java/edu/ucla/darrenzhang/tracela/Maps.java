@@ -7,6 +7,7 @@ import androidx.core.app.ActivityCompat;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
@@ -25,13 +26,22 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.TileOverlay;
+import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.maps.android.heatmaps.Gradient;
+import com.google.maps.android.heatmaps.HeatmapTileProvider;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 public class Maps extends AppCompatActivity implements OnMapReadyCallback {
 
@@ -41,6 +51,9 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
     private Handler handler;
     private Runnable updateFriendsMarkers;
     private final long UPDATE_INTERVAL = 10000; //in milliseconds
+    private TileOverlay tileOverlay;
+    private HeatmapTileProvider provider;
+    private boolean heatMapUninitialized = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,12 +108,14 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
             }
         });
         placeMarkersForFriends();
+        getAllLocationData();
 
         handler = new Handler();
         updateFriendsMarkers = new Runnable() {
              @Override
              public void run() {
                  placeMarkersForFriends();
+                 getAllLocationData();
                  handler.postDelayed(this, UPDATE_INTERVAL);
              }
          };
@@ -118,6 +133,88 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
         handler.removeCallbacks(updateFriendsMarkers);
     }
 
+    public void setHeatMap(List<LatLng> data){
+        Log.d(".Maps", "setHeatMap is being ran");
+        int[] colors = {
+                Color.rgb(245,185,66),   //green
+                Color.rgb(194,31,31)};    //red
+        float [] startPoints = {0.2f,1f};
+        Gradient gradient = new Gradient(colors,startPoints);
+         provider = new HeatmapTileProvider.Builder()
+                .data(data)
+                 .gradient(gradient)
+                .build();
+         tileOverlay = mMap.addTileOverlay(new TileOverlayOptions().tileProvider(provider));
+        heatMapUninitialized = false;
+
+    }
+
+    public void updateHeatMap(List<LatLng> data){
+        provider.setData(data);
+        tileOverlay.clearTileCache();
+    }
+
+    public void getAllLocationData(){
+        RequestQueue queue = Volley.newRequestQueue(this);
+        JsonArrayRequest getAllUsers = new JsonArrayRequest(Request.Method.GET, Constants.DATABASE_URL + "/coords/", new JSONArray(),
+                new Response.Listener<JSONArray>() {
+                    @Override
+                    public void onResponse(JSONArray coordinates) {
+                        HashMap<String, Date> usernames = new HashMap<>();
+                        List<LatLng> locationData = new ArrayList<>();
+                        ArrayList<String> coordinatesUsername = new ArrayList<>();
+                        ArrayList<Marker> markers = new ArrayList<>();
+                        for (int i = 0; i <coordinates.length(); i++) {
+                            JSONObject coordinate = null;
+                            try {
+                                coordinate = coordinates.getJSONObject(i);
+                                String username = coordinate.getString("username");
+                                Date currTime = new Date(coordinate.getString("stamp"));
+                                if (!usernames.containsKey(username) || currTime.compareTo(usernames.get(username)) > 0) {  //new user or more recent coordinate
+                                    double latitude = coordinate.getDouble("lat");
+                                    double longitude = coordinate.getDouble("lng");
+                                    LatLng latLng = new LatLng(latitude, longitude);
+                                    Log.d(".Maps", "looping through all location data: (" + latitude + ", " + longitude + ")");
+                                    markers.add(mMap.addMarker(new MarkerOptions().position(latLng).title(username)));
+                                    if (usernames.containsKey(username)){   //if this is an updated coordinate for an already visited user
+                                        for (int j = 0; j <coordinatesUsername.size(); j++){    //remove the old coordinate from locationData
+                                            if (coordinatesUsername.get(j).equals(username)){
+                                                coordinatesUsername.remove(j);
+                                                locationData.remove(j);
+                                                markers.get(j).remove();
+                                                markers.remove(j);
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    locationData.add(latLng);
+                                    coordinatesUsername.add(username);
+                                    usernames.put(username, currTime);
+                                }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        Log.d(".Maps","number of coordinates is "+locationData.size());
+                        if (heatMapUninitialized){
+                            setHeatMap(locationData);
+                        }else {
+                            Log.d(".Maps", "firstTimeCreatingMaps is false");
+                            updateHeatMap(locationData);
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d(".Maps", "Trying to get list of all coordinates: "+error.toString());
+                if (error.toString().equals("com.android.volley.AuthFailureError")){
+                    startLoginActivity();
+                }
+            }
+        });
+
+        queue.add(getAllUsers);
+    }
     public void placeMarkersForFriends() {
         RequestQueue queue = Volley.newRequestQueue(this);
         JsonArrayRequest friendsGetRequest = new JsonArrayRequest(Request.Method.GET, Constants.DATABASE_URL + "/friends?username=" + MainActivity.username + "&confirmed=true", new JSONArray(),
