@@ -15,19 +15,20 @@ public class Date implements Comparable {
     }
 
     public void parse(String s){
-        year = Integer.valueOf(s.substring(0,4));
-        month = Integer.valueOf(s.substring(5,7));
-        day = Integer.valueOf(s.substring(8,10));
-        hour = Integer.valueOf(s.substring(11,13));
-        minute = Integer.valueOf(s.substring(14,16));
-        second = Integer.valueOf(s.substring(17,19));
+        if (s.length() >=4) year = Integer.valueOf(s.substring(0,4));
+        if (s.length() >=7) month = Integer.valueOf(s.substring(5,7));
+        if (s.length() >=10) day = Integer.valueOf(s.substring(8,10));
+        if (s.length() >=13) hour = Integer.valueOf(s.substring(11, 13));
+        if (s.length() >=16) minute = Integer.valueOf(s.substring(14, 16));
+        if (s.length() >=19) second = Integer.valueOf(s.substring(17, 19));
+
     }
 
     @Override
     public int compareTo(Object o) {
         Date other = (Date)o;
         int [] otherArr = other.getComparingArray();
-        for (int i = 0; i<comparingArray.length; i++){
+        for (int i = 0; i<comparingArray.length && i < otherArr.length; i++){
             if (comparingArray[i]>otherArr[i]){
                 return 1;
             } else if (comparingArray[i] < otherArr[i]){
