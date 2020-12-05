@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -34,17 +35,17 @@ public class NewsPage extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_news_page);
         content = findViewById(R.id.contentTextView);
-
+        checkForContacts();
     }
-
-    public void getContacts(View view){
+    public void checkForContacts(){
+        //TODO: this should ideally be a post request to exposure not contacts, need to implement once backend updates
         RequestQueue queue = Volley.newRequestQueue(this);
         JsonArrayRequest coordGetRequest = new JsonArrayRequest(Request.Method.GET, Constants.DATABASE_URL + "/contacts?username=" + MainActivity.username, new JSONArray(),
                 new Response.Listener<JSONArray>() {
                     @RequiresApi(api = Build.VERSION_CODES.O)
                     @Override
                     public void onResponse(JSONArray contacts) {
-                        Log.d("..NewsPage"," contacts list is: "+contacts.length()+" long");
+                        Log.d(".NewsPage"," contacts list is: "+contacts.length()+" long");
                         if (contacts.length()>0) {
                             String msg = "You have been exposed to someone who tested positive for COVID-19 on: \n";
                             for (int i = 0; i < contacts.length(); i++) {
@@ -77,6 +78,10 @@ public class NewsPage extends AppCompatActivity {
             }
         });
         queue.add(coordGetRequest);
+        Toast.makeText(this, "UPDATED",Toast.LENGTH_SHORT).show();
+    }
+    public void getContacts(View view){
+        checkForContacts();
     }
 
     public void startLoginActivity(){
