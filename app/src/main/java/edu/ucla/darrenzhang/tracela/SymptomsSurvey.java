@@ -65,10 +65,11 @@ public class SymptomsSurvey extends AppCompatActivity {
                 return;
             }else{
                 Log.d(".SymptomsSurvey", "posting contact to backend");
-                postContact(oUsername, location, date);
+                postContact(oUsername, location, date);             //add contact
+                sendCOVIDResult(oUsername, true);          //set that contact to having tested positive for COVID-19
             }
         }
-        sendCOVIDResult(covidResultSwitch.isChecked());
+        sendCOVIDResult(MainActivity.username, covidResultSwitch.isChecked());
         finish();
     }
 
@@ -106,7 +107,7 @@ public class SymptomsSurvey extends AppCompatActivity {
         startActivity(loginIntent);
     }
 
-    private void sendCOVIDResult(boolean positive) {
+    private void sendCOVIDResult(String username, boolean positive) {
         String msg = positive ? "true" : "false";
         RequestQueue queue = Volley.newRequestQueue(this);
 
