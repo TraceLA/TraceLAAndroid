@@ -74,7 +74,7 @@ public class CheckExposureReceiver extends BroadcastReceiver {
     public void checkForExposure() {
         //TODO: this just checks for contacts right now, need to update to check for exposure once backend adds that
         RequestQueue queue = Volley.newRequestQueue(context);
-        JsonArrayRequest coordGetRequest = new JsonArrayRequest(Request.Method.GET, Constants.DATABASE_URL + "/contacts?username=" + MainActivity.username, new JSONArray(),
+        JsonArrayRequest coordGetRequest = new JsonArrayRequest(Request.Method.GET, Constants.DATABASE_URL + "/exposure/contacts?username=" + MainActivity.username, new JSONArray(),
                 new Response.Listener<JSONArray>() {
                     @RequiresApi(api = Build.VERSION_CODES.O)
                     @Override
