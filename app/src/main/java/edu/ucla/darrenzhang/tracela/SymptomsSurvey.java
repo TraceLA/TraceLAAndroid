@@ -111,7 +111,7 @@ public class SymptomsSurvey extends AppCompatActivity {
         String msg = positive ? "true" : "false";
         RequestQueue queue = Volley.newRequestQueue(this);
 
-        String url = Constants.DATABASE_URL + "/results?username=" + MainActivity.username+"&result="+msg+"&date="+Calendar.getInstance().getTime();
+        String url = Constants.DATABASE_URL + "/results?username=" + username+"&result="+msg+"&date="+Calendar.getInstance().getTime();
         StringRequest userPOSTRequest = new StringRequest(Request.Method.POST, url,
                 new Response.Listener<String>() {
                     @Override
