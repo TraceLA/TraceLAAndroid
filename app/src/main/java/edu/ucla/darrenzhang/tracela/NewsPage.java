@@ -41,7 +41,7 @@ public class NewsPage extends AppCompatActivity {
     public void checkForExposure(){
         //TODO: this should ideally be a post request to exposure not contacts, need to implement once backend updates
         RequestQueue queue = Volley.newRequestQueue(this);
-        JsonArrayRequest coordGetRequest = new JsonArrayRequest(Request.Method.GET, Constants.DATABASE_URL + "/exposure/contacts?username=" + MainActivity.username, new JSONArray(),
+        JsonArrayRequest contactsGetRequest = new JsonArrayRequest(Request.Method.GET, Constants.DATABASE_URL + "/exposure/contacts?username=" + MainActivity.username, new JSONArray(),
                 new Response.Listener<JSONArray>() {
                     @RequiresApi(api = Build.VERSION_CODES.O)
                     @Override
@@ -51,22 +51,24 @@ public class NewsPage extends AppCompatActivity {
                             String msg = "You have been exposed to someone who tested positive for COVID-19 on: \n";
                             for (int i = 0; i < contacts.length(); i++) {
                                 try{
-                                    JSONObject contact = contacts.getJSONObject(contacts.length()-1);
-                                    String location = contact.getString("location");
-                                    String time = contact.getString("date");
-                                    DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.ENGLISH);
-                                    DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("dd-MM-yyy", Locale.ENGLISH);
-                                    LocalDate date = LocalDate.parse(time, inputFormatter);
-                                    time = outputFormatter.format(date);
-                                    msg += time + " at "+location+"\n";
-                                    Log.d(".NewsPage", MainActivity.username + " was exposed to " + contact.getString("other_username")+" at "+location+": "+time);
+                                    String otherUsername = contacts.getString(i);
+//                                    JSONObject contact = contacts.getJSONObject(i);
+//                                    String location = contact.getString("location");
+//                                    String time = contact.getString("date");
+//                                    DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.ENGLISH);
+//                                    DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("dd-MM-yyy", Locale.ENGLISH);
+//                                    LocalDate date = LocalDate.parse(time, inputFormatter);
+//                                    time = outputFormatter.format(date);
+                                    //msg += time + " at "+location+"\n";
+                                    msg += otherUsername+'\n';
+                                   // Log.d(".NewsPage", MainActivity.username + " was exposed to " + contact.getString("other_username")+" at "+location+": "+time);
                                 }catch (JSONException e){
                                     Log.d(".NewsPage","error processing contacts data: "+e.toString());
                                 }
                             }
                             content.setText(msg);
                         } else {
-                            content.setText("You have not been recently exposed to anyone who has tested positive for COVID-19");
+                            content.setText("You have not been recently exposed to anyone who has tested positive for COVID-19\n");
                         }
                     }
                 }, new Response.ErrorListener() {
@@ -78,19 +80,28 @@ public class NewsPage extends AppCompatActivity {
                 }
             }
         });
-        queue.add(coordGetRequest);
+        queue.add(contactsGetRequest);
     }
     public void checkForInfectionSpots()
     {
         RequestQueue queue = Volley.newRequestQueue(this);
-        JsonArrayRequest coordGetRequest = new JsonArrayRequest(Request.Method.GET, Constants.DATABASE_URL + "/exposure/contacts?username=" + MainActivity.username, new JSONArray(),
+        JsonArrayRequest spotsGetRequest = new JsonArrayRequest(Request.Method.GET, Constants.DATABASE_URL + "/exposure/spots?username=" + MainActivity.username, new JSONArray(),
                 new Response.Listener<JSONArray>() {
                     @RequiresApi(api = Build.VERSION_CODES.O)
                     @Override
-                    public void onResponse(JSONArray contacts) {
-                        Log.d(".NewsPage"," contacts list is: "+contacts.length()+" long");
-                        if (contacts.length()>0) {
-                            getPastLocation(contacts);
+                    public void onResponse(JSONArray exposureSpots) {
+                        Log.d(".NewsPage"," contacts list is: "+exposureSpots.length()+" long");
+                        if (exposureSpots.length() > 0) {
+                            String msg = content.getText().toString();
+                            msg += "\nYou may have been exposed to COVID-19 at these potential high-risk locations:\n";
+                            for (int i = 0; i < exposureSpots.length(); i++) {
+                                try {
+                                    msg+= exposureSpots.getString(i)+"\n";
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                            content.setText(msg);
                         }
                     }
                 }, new Response.ErrorListener() {
@@ -102,53 +113,7 @@ public class NewsPage extends AppCompatActivity {
                 }
             }
         });
-        queue.add(coordGetRequest);
-        Toast.makeText(this, "UPDATED",Toast.LENGTH_SHORT).show();
-    }
-    public void getPastLocation(JSONArray infectionSpots){
-        RequestQueue queue = Volley.newRequestQueue(this);
-        JsonArrayRequest coordGetRequest = new JsonArrayRequest(Request.Method.GET, Constants.DATABASE_URL + "/coords?username=" + MainActivity.username, new JSONArray(),
-                new Response.Listener<JSONArray>() {
-                    @RequiresApi(api = Build.VERSION_CODES.O)
-                    @Override
-                    public void onResponse(JSONArray coordinates) {
-                        Log.d(".NewsPage",MainActivity.username+"'s location list is "+coordinates.length()+" long");
-                        String msg = content.getText().toString();
-                        for (int i = 0; i < coordinates.length(); i++) {
-                            try{
-                                JSONObject coordinate = coordinates.getJSONObject(i);
-                                double latitude = coordinate.getDouble("lat");
-                                double longitude = coordinate.getDouble("lng");
-                                LocationObject userLoc = new LocationObject(latitude, longitude);
-                                String time = coordinate.getString("date");
-                                DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.ENGLISH);
-                                DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("dd-MM-yyy", Locale.ENGLISH);
-                                LocalDate date = LocalDate.parse(time, inputFormatter);
-                                time = outputFormatter.format(date);
-                                for (int j =0; j < infectionSpots.length(); j++){
-                                    JSONObject spot = infectionSpots.getJSONObject(j);
-                                    if (userLoc.getDistanceInMeters(spot.getDouble("lat"), spot.getDouble("lng")) <= DISTANCE_THRESHOLD_FOR_SPOT)
-                                    {
-                                        msg += time+" at ("+latitude+", "+longitude+")\n";
-                                    }
-                                }
-                            }catch (JSONException e){
-                                Log.d(".NewsPage","error processing location data: "+e.toString());
-                            }
-                        }
-                        content.setText(msg);
-                    }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                if (error.toString().equals("com.android.volley.AuthFailureError")){
-                    Log.d(".NewsPage", "Can't get coordinates for "+MainActivity.username+ " because they have turned off location sharing with friends");
-                }else{
-                    Log.d(".NewsPage", "Error Getting coordinates for " + MainActivity.username + ": " + error.toString());
-                }
-            }
-        });
-        queue.add(coordGetRequest);
+        queue.add(spotsGetRequest);
     }
 
     public void getContacts(View view){
