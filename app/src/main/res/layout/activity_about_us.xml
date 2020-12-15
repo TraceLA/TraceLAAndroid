@@ -8,12 +8,29 @@
 
     <TextView
         android:id="@+id/abustextView"
-        android:layout_width="279dp"
-        android:layout_height="35dp"
-        android:layout_marginTop="56dp"
-        android:text="Creative Labs"
+        android:layout_width="261dp"
+        android:layout_height="42dp"
+        android:layout_marginTop="32dp"
+        android:text="Welcome to Creative Labs!"
+        android:textSize="20dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="367dp"
+        android:layout_height="28dp"
+        android:text="Learn more about CL: "
+        tools:layout_editor_absoluteX="22dp"
+        tools:layout_editor_absoluteY="104dp" />
+
+    <TextView
+        android:id="@+id/textView4"
+        android:layout_width="364dp"
+        android:layout_height="33dp"
+        android:text="TextView"
+        tools:layout_editor_absoluteX="24dp"
+        tools:layout_editor_absoluteY="141dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
