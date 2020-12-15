@@ -43,6 +43,7 @@
         android:autoLink="all"
         android:clickable="true"
         android:text="https://www.creativelabsucla.com/"
+        android:textColor="@color/purple_700"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.222"
         app:layout_constraintStart_toStartOf="parent"
@@ -71,6 +72,7 @@
         android:autoLink="all"
         android:clickable="true"
         android:text="https://github.com/TraceLA"
+        android:textColor="@color/purple_700"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView5" />

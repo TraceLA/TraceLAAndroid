@@ -4,6 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
+    android:background="@color/lightest_blue"
     android:layout_height="match_parent">
 
     <Button
@@ -43,9 +44,10 @@
 
     <TextView
         android:id="@+id/textViewReq"
-        android:layout_width="350dp"
-        android:layout_height="69dp"
-        android:text="Friend Request"
+        android:layout_width="272dp"
+        android:layout_height="75dp"
+        android:gravity="center_vertical"
+        android:text="Friend"
         android:textSize="50sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
