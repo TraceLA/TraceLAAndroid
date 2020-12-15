@@ -16,6 +16,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 
 import org.json.JSONArray;
@@ -28,48 +29,41 @@ import java.util.Locale;
 
 public class NewsPage extends AppCompatActivity {
     private TextView content;
-    public static final int DISTANCE_THRESHOLD_FOR_SPOT = 100;      //in meters
+    private RequestQueue queue;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        queue = Volley.newRequestQueue(this);
         setContentView(R.layout.activity_news_page);
         content = findViewById(R.id.contentTextView);
         checkForExposure();
-        checkForInfectionSpots();
         displayUpdatedToastMsg();
     }
     public void checkForExposure(){
-        //TODO: this should ideally be a post request to exposure not contacts, need to implement once backend updates
-        RequestQueue queue = Volley.newRequestQueue(this);
-        JsonArrayRequest contactsGetRequest = new JsonArrayRequest(Request.Method.GET, Constants.DATABASE_URL + "/exposure/contacts?username=" + MainActivity.username, new JSONArray(),
-                new Response.Listener<JSONArray>() {
+        JsonObjectRequest contactsGetRequest = new JsonObjectRequest(Request.Method.GET, Constants.DATABASE_URL + "/exposure/contacts?username=" + MainActivity.username, new JSONObject(),
+                new Response.Listener<JSONObject>() {
                     @RequiresApi(api = Build.VERSION_CODES.O)
                     @Override
-                    public void onResponse(JSONArray contacts) {
+                    public void onResponse(JSONObject contacts) {
                         Log.d(".NewsPage"," contacts list is: "+contacts.length()+" long");
                         if (contacts.length()>0) {
                             String msg = "You have been exposed to someone who tested positive for COVID-19 on: \n";
-                            for (int i = 0; i < contacts.length(); i++) {
-                                try{
-                                    String otherUsername = contacts.getString(i);
-//                                    JSONObject contact = contacts.getJSONObject(i);
-//                                    String location = contact.getString("location");
-//                                    String time = contact.getString("date");
-//                                    DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.ENGLISH);
-//                                    DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("dd-MM-yyy", Locale.ENGLISH);
-//                                    LocalDate date = LocalDate.parse(time, inputFormatter);
-//                                    time = outputFormatter.format(date);
-                                    //msg += time + " at "+location+"\n";
-                                    msg += otherUsername+'\n';
-                                   // Log.d(".NewsPage", MainActivity.username + " was exposed to " + contact.getString("other_username")+" at "+location+": "+time);
-                                }catch (JSONException e){
-                                    Log.d(".NewsPage","error processing contacts data: "+e.toString());
-                                }
+                            String[] arr = contacts.toString().split(",");
+                            for (int i = 0; i < arr.length; i++) {
+                                    String userDateKeyValPair = arr[i];
+                                    int indexOfColon = userDateKeyValPair.indexOf(':');
+                                    String time = userDateKeyValPair.substring(indexOfColon+2, userDateKeyValPair.indexOf("\"", indexOfColon+2));
+                                    DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.ENGLISH);
+                                    DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("dd-MM-yyy", Locale.ENGLISH);
+                                    LocalDate date = LocalDate.parse(time, inputFormatter);
+                                    time = outputFormatter.format(date);
+                                    msg += time + "\n";
                             }
                             content.setText(msg);
                         } else {
                             content.setText("You have not been recently exposed to anyone who has tested positive for COVID-19\n");
                         }
+                        checkForInfectionSpots();
                     }
                 }, new Response.ErrorListener() {
             @Override
@@ -84,13 +78,12 @@ public class NewsPage extends AppCompatActivity {
     }
     public void checkForInfectionSpots()
     {
-        RequestQueue queue = Volley.newRequestQueue(this);
         JsonArrayRequest spotsGetRequest = new JsonArrayRequest(Request.Method.GET, Constants.DATABASE_URL + "/exposure/spots?username=" + MainActivity.username, new JSONArray(),
                 new Response.Listener<JSONArray>() {
                     @RequiresApi(api = Build.VERSION_CODES.O)
                     @Override
                     public void onResponse(JSONArray exposureSpots) {
-                        Log.d(".NewsPage"," contacts list is: "+exposureSpots.length()+" long");
+                        Log.d(".NewsPage"," exposure spots list is: "+exposureSpots.length()+" long");
                         if (exposureSpots.length() > 0) {
                             String msg = content.getText().toString();
                             msg += "\nYou may have been exposed to COVID-19 at these potential high-risk locations:\n";
@@ -107,7 +100,7 @@ public class NewsPage extends AppCompatActivity {
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.d(".NewsPage", "Getting contacts for " + MainActivity.username + ": " + error.toString());
+                Log.d(".NewsPage", "Getting exposure spots for " + MainActivity.username + ": " + error.toString());
                 if (error.toString().equals("com.android.volley.AuthFailureError")){
                     startLoginActivity();
                 }
@@ -118,7 +111,6 @@ public class NewsPage extends AppCompatActivity {
 
     public void getContacts(View view){
         checkForExposure();
-        checkForInfectionSpots();
         displayUpdatedToastMsg();
     }
     public void displayUpdatedToastMsg()
