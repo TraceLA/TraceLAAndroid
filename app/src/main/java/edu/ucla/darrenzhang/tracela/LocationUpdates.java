@@ -175,7 +175,6 @@ public class LocationUpdates extends Service {
             public void onErrorResponse(VolleyError error) {
                 Log.d(".LocationUpdate", "-------------------------------------------Error sending coordinates. " + error.toString());
                 if (error.toString().equals("com.android.volley.AuthFailureError")) {
-                    // startLoginActivity();
                     updateApiKey();
                     postLocation(latitude, longitude);
                 }
@@ -206,7 +205,6 @@ public class LocationUpdates extends Service {
                         api_key = response;
 
                         Log.d("SUCCESS: ", api_key+MainActivity.username);
-//                        writeCredentialsToMemory();
                     }
                 }, new Response.ErrorListener() {
             @Override
