@@ -64,25 +64,27 @@ public class MainActivity extends AppCompatActivity {
     private ToggleButton toggleFriendSharing;
     private boolean sharingWithFriends=true;
     private NotificationManager mNotificationManager;
+    private InternalMemory internalMemory;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        internalMemory = new InternalMemory(this);
 
-        if (internalMemoryIsEmpty()) {
+        if (internalMemory.internalMemoryIsEmpty()) {
             startLoginActivity();
         }
-        setCredentials();
+        internalMemory.setCredentialsOfMainActivity();
         Log.d("CREDENTIALS", username+", "+password+", "+api_key);
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
-        sendingLocation = getSendingBoolFromMemory();
+        sendingLocation = internalMemory.getSendingBoolFromMemory();
         toggle = (ToggleButton) findViewById(R.id.toggleUpdateLocButton);
 
         toggleFriendSharing = findViewById(R.id.shareLocationToggleBtn);
-        sharingWithFriends = getSharingPermissionsFromMemory();
+        sharingWithFriends = internalMemory.getSharingPermissionsFromMemory();
 
         toggle.setChecked(sendingLocation);
         toggleFriendSharing.setChecked(sharingWithFriends);
@@ -101,12 +103,12 @@ public class MainActivity extends AppCompatActivity {
                 if (isChecked){
                         Log.d(".MainActivity", "ToggleButton turned on");
                         sendingLocation = true;
-                        updateInternalMemoryToggleState(true);
+                        internalMemory.updateInternalMemoryToggleState(true);
                         startUpdatingLocation();
                 }else{
                         Log.d(".MainActivity", "ToggleButton turned off");
                         sendingLocation = false;
-                        updateInternalMemoryToggleState(false);
+                        internalMemory.updateInternalMemoryToggleState(false);
                         endUpdatingLocation();
                 }
             }
@@ -133,7 +135,7 @@ public class MainActivity extends AppCompatActivity {
         mNotificationManager = (NotificationManager)
                 getSystemService(NOTIFICATION_SERVICE);
         Intent notifyIntent = new Intent(this, CheckExposureReceiver.class);
-
+        notifyIntent.putExtra("username", username);
         final PendingIntent notifyPendingIntent = PendingIntent.getBroadcast
                 (this, NOTIFICATION_ID, notifyIntent,
                         PendingIntent.FLAG_UPDATE_CURRENT);
@@ -188,7 +190,7 @@ public class MainActivity extends AppCompatActivity {
                     public void onResponse(String response) {
                         Log.d(".MainActivity", "successfully update sharing permissions to "+ (sharingState ? "on":"off"));
                         sharingWithFriends = sharingState;
-                        updateInternalMemorySharingPermissions(sharingState);
+                        internalMemory.updateInternalMemorySharingPermissions(sharingState);
                     }
                 }, new Response.ErrorListener() {
             @Override
@@ -229,119 +231,14 @@ public class MainActivity extends AppCompatActivity {
         Intent endUpdateLocIntent = new Intent(this, LocationUpdates.class);
         stopService(endUpdateLocIntent);
     }
-    public void updateInternalMemoryToggleState(boolean sending){
-        writeToInternalMemory(username+'\n'+password+'\n'+MainActivity.api_key+'\n'+sending+'\n'+sharingWithFriends);
-    }
-    public void updateInternalMemorySharingPermissions(boolean sharing){
-        writeToInternalMemory(username+'\n'+password+'\n'+MainActivity.api_key+'\n'+sendingLocation+'\n'+sharing);
-    }
-
-    public boolean getSharingPermissionsFromMemory(){
-        FileInputStream stream = null;
-        try {
-            stream = openFileInput("memory");
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-
-        InputStreamReader inputStreamReader = new InputStreamReader(stream, StandardCharsets.UTF_8);
-        try (BufferedReader reader = new BufferedReader((inputStreamReader))){
-            for (int i = 0; i<4;i++) {
-                reader.readLine();
-            }
-            String line = reader.readLine();
-            if (line == null || line.length() == 0){
-                return true;
-            }else{
-                return line.equals("true");
-            }
-        }catch (IOException e){
-            e.printStackTrace();
-        }
-        return true;
-    }
-    public boolean getSendingBoolFromMemory(){
-        FileInputStream stream = null;
-        try {
-            stream = openFileInput("memory");
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-
-        InputStreamReader inputStreamReader = new InputStreamReader(stream, StandardCharsets.UTF_8);
-        try (BufferedReader reader = new BufferedReader((inputStreamReader))){
-            for (int i = 0; i<3;i++) {
-               reader.readLine();
-            }
-            String line = reader.readLine();
-            if (line == null || line.length() == 0){
-                return true;
-            }else{
-                return line.equals("true");
-            }
-        }catch (IOException e){
-            e.printStackTrace();
-        }
-        return true;
-    }
 
     public void startLoginActivity(){
         Intent loginIntent = new Intent(this, LoginPage.class);
         startActivity(loginIntent);
     }
 
-    public boolean internalMemoryIsEmpty(){
-        try (FileOutputStream fos = openFileOutput("memory", Context.MODE_APPEND)){    //this creates a "memory" file in case it was never created before
-
-        }catch(IOException e){
-            e.printStackTrace();
-        }
-
-        FileInputStream stream = null;
-        try {
-            stream = openFileInput("memory");
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-
-        InputStreamReader inputStreamReader = new InputStreamReader(stream, StandardCharsets.UTF_8);
-        try (BufferedReader reader = new BufferedReader((inputStreamReader))){
-            String line = reader.readLine();
-            if (line == null || line.length() == 0){
-                return true;
-            }
-        }catch (IOException e){
-            e.printStackTrace();
-        }
-        return false;
-    }
-    public void setCredentials(){
-        FileInputStream stream = null;
-        try {
-            stream = openFileInput("memory");
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-
-        InputStreamReader inputStreamReader = new InputStreamReader(stream, StandardCharsets.UTF_8);
-        try (BufferedReader reader = new BufferedReader((inputStreamReader))){
-            username = reader.readLine();
-            password = reader.readLine();
-            api_key = reader.readLine();
-        }catch (IOException e){
-            e.printStackTrace();
-        }
-    }
-    public void writeToInternalMemory(String s){
-        try (FileOutputStream fos = openFileOutput("memory", Context.MODE_PRIVATE)){
-            fos.write(s.getBytes());
-        }catch(IOException e){
-            e.printStackTrace();
-        }
-    }
-
     public void logout(View view){
-        writeToInternalMemory("");
+        internalMemory.writeToInternalMemory("");
         endUpdatingLocation();
         startLoginActivity();
     }

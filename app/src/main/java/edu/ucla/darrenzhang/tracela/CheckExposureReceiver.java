@@ -32,6 +32,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
@@ -54,7 +55,12 @@ public class CheckExposureReceiver extends BroadcastReceiver {
     // Notification channel ID.
     private static final String PRIMARY_CHANNEL_ID =
             "primary notification channel";
+    private static final String NOTIFICATION_MSG = "You've been exposed to someone who tested positive for COVID-19.";
     private Context context;
+    private InternalMemory internalMemory;
+    private RequestQueue queue;
+    private String exposures = "";
+    private String username;
 
     /**
      * Called when the BroadcastReceiver receives an Intent broadcast.
@@ -65,60 +71,81 @@ public class CheckExposureReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         this.context = context;
+        username = intent.getStringExtra("username");
+        queue = Volley.newRequestQueue(context);
+        internalMemory = new InternalMemory(context);
+        exposures = "";
         Log.d(".CheckExposureReceiver", "Received intent");
         mNotificationManager = (NotificationManager)
                 context.getSystemService(Context.NOTIFICATION_SERVICE);
         checkForExposure(); //will deliver notification if there is exposure
     }
 
-    public void checkForExposure() {
-        //TODO: this just checks for contacts right now, need to update to check for exposure once backend adds that
-        RequestQueue queue = Volley.newRequestQueue(context);
-        JsonArrayRequest coordGetRequest = new JsonArrayRequest(Request.Method.GET, Constants.DATABASE_URL + "/exposure/contacts?username=" + MainActivity.username, new JSONArray(),
-                new Response.Listener<JSONArray>() {
+    public void checkForExposure(){
+        JsonObjectRequest contactsGetRequest = new JsonObjectRequest(Request.Method.GET, Constants.DATABASE_URL + "/exposure/contacts?username=" + username, new JSONObject(),
+                new Response.Listener<JSONObject>() {
                     @RequiresApi(api = Build.VERSION_CODES.O)
                     @Override
-                    public void onResponse(JSONArray contacts) {
-                        Log.d(".CheckExposureReceiver", " contacts list is: " + contacts.length() + " long");
-                        if (contacts.length() > 0) {
+                    public void onResponse(JSONObject contacts) {
+                        Log.d(".CheckExposureReceiver"," contacts list is: "+contacts.length()+" long");
+                        if (contacts.length()>0) {
                             String msg = "You have been exposed to someone who tested positive for COVID-19 on: \n";
-                            for (int i = 0; i < contacts.length(); i++) {
-                                try {
-                                    JSONObject contact = contacts.getJSONObject(contacts.length() - 1);
-                                    String location = contact.getString("location");
-                                    String time = contact.getString("date");
-                                    DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.ENGLISH);
-                                    DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("dd-MM-yyy", Locale.ENGLISH);
-                                    LocalDate date = LocalDate.parse(time, inputFormatter);
-                                    time = outputFormatter.format(date);
-                                    msg += time + " at " + location;
-                                    Log.d(".CheckExposureReceiver", MainActivity.username + " was exposed to " + contact.getString("other_username") + " at " + location + ": " + time);
-                                } catch (JSONException e) {
-                                    Log.d(".CheckExposureReceiver", "error processing contacts data: " + e.toString());
-                                }
+                            String[] arr = contacts.toString().split(",");
+                            for (int i = 0; i < arr.length; i++) {
+                                String userDateKeyValPair = arr[i];
+                                int indexOfColon = userDateKeyValPair.indexOf(':');
+                                String time = userDateKeyValPair.substring(indexOfColon+2, userDateKeyValPair.indexOf("\"", indexOfColon+2));
+                                DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.ENGLISH);
+                                DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("MM-dd-yyyy", Locale.ENGLISH);
+                                LocalDate date = LocalDate.parse(time, inputFormatter);
+                                time = outputFormatter.format(date);
+                                msg += time + "\n";
                             }
-                            Log.d(".CheckExposureReceiver", "delivering notification");
-                            deliverNotification(context, "You've been exposed to someone who tested positive for COVID-19.");
-//                            MainActivty.
-//                            content.setText(msg);
+                            exposures = msg;
                         } else {
-                            Log.d(".CheckExposureReceiver", "Checked backend and the user has no exposure");
-//                            deliverNotification(context, "No Exposure");
-//                            content.setText("You have not been recently exposed to anyone who has tested positive for COVID-19");
+                            exposures = "You have not been recently exposed to anyone who has tested positive for COVID-19\n";
                         }
+                        checkForInfectionSpots();
                     }
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
                 Log.d(".CheckExposureReceiver", "Getting contacts for " + MainActivity.username + ": " + error.toString());
-                if (error.toString().equals("com.android.volley.AuthFailureError")) {
-                    updateApiKey();
-                }
             }
         });
-        queue.add(coordGetRequest);
+        queue.add(contactsGetRequest);
     }
-
+    public void checkForInfectionSpots()
+    {
+        JsonArrayRequest spotsGetRequest = new JsonArrayRequest(Request.Method.GET, Constants.DATABASE_URL + "/exposure/spots?username=" + username, new JSONArray(),
+                new Response.Listener<JSONArray>() {
+                    @RequiresApi(api = Build.VERSION_CODES.O)
+                    @Override
+                    public void onResponse(JSONArray exposureSpots) {
+                        Log.d(".CheckExposureReceiver"," exposure spots list is: "+exposureSpots.length()+" long");
+                        if (exposureSpots.length() > 0) {
+                            exposures += "\nYou may have been exposed to COVID-19 at these potential high-risk locations:\n";
+                            for (int i = 0; i < exposureSpots.length(); i++) {
+                                try {
+                                    exposures+= exposureSpots.getString(i)+"\n";
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+                        if (internalMemory.hasNewContacts(exposures)){
+                            internalMemory.writeExposureInfoToMemory(exposures);
+                            deliverNotification(context, NOTIFICATION_MSG);
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d(".CheckExposureReceiver", "Getting exposure spots for " + MainActivity.username + ": " + error.toString());
+            }
+        });
+        queue.add(spotsGetRequest);
+    }
     /**
      * Builds and delivers the notification.
      *
@@ -132,7 +159,6 @@ public class CheckExposureReceiver extends BroadcastReceiver {
         PendingIntent contentPendingIntent = PendingIntent.getActivity
                 (context, NOTIFICATION_ID, contentIntent, PendingIntent
                         .FLAG_UPDATE_CURRENT);
-//        String exposedMsg = "You've been exposed to someone who tested positive for COVID-19.";
         // Build the notification
         NotificationCompat.Builder builder = new NotificationCompat.Builder
                 (context, PRIMARY_CHANNEL_ID)
@@ -148,34 +174,6 @@ public class CheckExposureReceiver extends BroadcastReceiver {
 
         // Deliver the notification
         mNotificationManager.notify(NOTIFICATION_ID, builder.build());
-    }
-
-    private void updateApiKey() {
-        RequestQueue queue = Volley.newRequestQueue(context);
-
-        String url = Constants.DATABASE_URL + "/userLogin/?username=" + MainActivity.username + "&password=" + MainActivity.password;
-        Log.d(".CheckExposureReceiver", "Login Post Attempt: " + MainActivity.username + ", " + MainActivity.password);
-
-        StringRequest userPOSTRequest = new StringRequest(Request.Method.POST, url,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        int start = response.indexOf(":") + 2;
-                        int end = response.indexOf("\"", start);
-                        response = response.substring(start, end);
-                        MainActivity.api_key = response;
-
-                        Log.d("SUCCESS: ", MainActivity.api_key + MainActivity.username);
-//                        writeCredentialsToMemory();
-                    }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.d(".CheckExposureReceiver", "wrong Username/pword" + error.toString());
-            }
-        });
-
-        queue.add(userPOSTRequest);
     }
 }
 

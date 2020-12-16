@@ -29,11 +29,13 @@ public class LoginPage extends AppCompatActivity {
     private EditText usernameEditText, passwordEditText, UCLAIDEditText;
     private TextView errorTextView;
     private String username, password, id;
+    private InternalMemory internalMemory;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login_page);
+        internalMemory = new InternalMemory(this);
     }
 
     public void onLoginClick(View view) {
@@ -67,22 +69,11 @@ public class LoginPage extends AppCompatActivity {
 
     }
 
-    public  void writeToInternalMemory(String s) {
-        try (FileOutputStream fos = openFileOutput("memory", Context.MODE_PRIVATE)) {
-            fos.write(s.getBytes());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     public void createAccount(View view) {
         Intent createAccountIntent = new Intent(this, CreateAccount.class);
         startActivity(createAccountIntent);
     }
 
-    public void writeCredentialsToMemory(){
-        writeToInternalMemory(username+'\n'+password+'\n'+MainActivity.api_key);
-    }
     private void loginPOST(){
         RequestQueue queue = Volley.newRequestQueue(this);
 
@@ -99,7 +90,7 @@ public class LoginPage extends AppCompatActivity {
                         MainActivity.username = username;
                         MainActivity.password = password;
                         Log.d(".LoginPage.class", MainActivity.api_key);
-                        writeCredentialsToMemory();
+                        internalMemory.writeToInternalMemory(username+'\n'+password+'\n'+MainActivity.api_key);
                         finish();
                     }
                 }, new Response.ErrorListener() {

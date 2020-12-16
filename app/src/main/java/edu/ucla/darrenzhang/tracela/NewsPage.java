@@ -30,9 +30,11 @@ import java.util.Locale;
 public class NewsPage extends AppCompatActivity {
     private TextView content;
     private RequestQueue queue;
+    private InternalMemory internalMemory;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        internalMemory = new InternalMemory(this);
         queue = Volley.newRequestQueue(this);
         setContentView(R.layout.activity_news_page);
         content = findViewById(R.id.contentTextView);
@@ -54,7 +56,7 @@ public class NewsPage extends AppCompatActivity {
                                     int indexOfColon = userDateKeyValPair.indexOf(':');
                                     String time = userDateKeyValPair.substring(indexOfColon+2, userDateKeyValPair.indexOf("\"", indexOfColon+2));
                                     DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.ENGLISH);
-                                    DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("dd-MM-yyy", Locale.ENGLISH);
+                                    DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("MM-dd-yyyy", Locale.ENGLISH);
                                     LocalDate date = LocalDate.parse(time, inputFormatter);
                                     time = outputFormatter.format(date);
                                     msg += time + "\n";
@@ -96,6 +98,7 @@ public class NewsPage extends AppCompatActivity {
                             }
                             content.setText(msg);
                         }
+                        internalMemory.writeExposureInfoToMemory(content.getText().toString());
                     }
                 }, new Response.ErrorListener() {
             @Override
