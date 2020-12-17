@@ -34,18 +34,43 @@ public class Friends extends AppCompatActivity {
     //Initialize variable
     ListView listView;
     ArrayList<String> stringArrayList = new ArrayList<>();
+    ArrayList<String> confirmedArrayList = new ArrayList<>();
     ArrayAdapter<String> adapter;
     String username;
+    Boolean isFriend = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_friends);
 
+        RequestQueue queue = Volley.newRequestQueue(this);
+        JsonArrayRequest userGetRequest1 = new JsonArrayRequest(Request.Method.GET, Constants.DATABASE_URL+"/friends?reverse=true&confirmed=true&username=" + MainActivity.username, new JSONArray(),
+                new Response.Listener<JSONArray>() {
+                    @Override
+                    public void onResponse(JSONArray userList) {
+                        for (int i = 0; i < userList.length(); i++) {
+                            JSONObject user = null;
+                            try {
+                                user = userList.getJSONObject(i);
+                                confirmedArrayList.add(user.getString("username_a"));
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d("noFriend", error.toString());
+            }
+        });
+
+        queue.add(userGetRequest1);
+
         //Assign variable
         listView = findViewById(R.id.list_view);
 
-        RequestQueue queue = Volley.newRequestQueue(this);
         JsonArrayRequest userGetRequest = new JsonArrayRequest(Request.Method.GET, Constants.usersURL, new JSONArray(),
                 new Response.Listener<JSONArray>() {
                     @Override
@@ -55,8 +80,14 @@ public class Friends extends AppCompatActivity {
                             try {
                                 user = userList.getJSONObject(i);
                                 username = user.getString("username");
-                                if (!username.equals(MainActivity.username)) {
-                                    stringArrayList.add(username);
+                                for (int j = 0; j < confirmedArrayList.size(); j++) {
+                                    Log.d("user", confirmedArrayList.get(j));
+                                    if (confirmedArrayList.get(j).equals(username)) {
+                                        isFriend = true;
+                                    }
+                                }
+                                if ((!username.equals(MainActivity.username)) && (!isFriend)) {
+                                        stringArrayList.add(username);
                                 }
                                 //Initialize adapter
                                 adapter = new ArrayAdapter<>(Friends.this, android.R.layout.simple_list_item_1, stringArrayList);

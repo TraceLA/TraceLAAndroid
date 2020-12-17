@@ -30,7 +30,7 @@ import java.util.ArrayList;
 
 public class ViewConfirmed extends AppCompatActivity {
     ListView listView;
-    ArrayList<String> stringArrayList = new ArrayList<>();
+    ArrayList<String> stringArrayList1 = new ArrayList<>();
     ArrayAdapter<String> adapter;
 
     @Override
@@ -49,9 +49,9 @@ public class ViewConfirmed extends AppCompatActivity {
                             JSONObject user = null;
                             try {
                                 user = userList.getJSONObject(i);
-                                stringArrayList.add(user.getString("username_a"));
+                                stringArrayList1.add(user.getString("username_a"));
                                 //Initialize adapter
-                                adapter = new ArrayAdapter<>(ViewConfirmed.this, android.R.layout.simple_list_item_1, stringArrayList);
+                                adapter = new ArrayAdapter<>(ViewConfirmed.this, android.R.layout.simple_list_item_1, stringArrayList1);
 
                                 //Set adapter on list view
                                 listView.setAdapter(adapter);
@@ -76,7 +76,7 @@ public class ViewConfirmed extends AppCompatActivity {
 
         queue.add(userGetRequest);
 
-        Log.d("string contents", stringArrayList.toString());
+        Log.d("string contents", stringArrayList1.toString());
     }
 
     @Override
