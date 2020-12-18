@@ -228,7 +228,8 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
                             JSONObject user = null;
                             try {
                                 user = userList.getJSONObject(i);
-                                String username = user.getString("username_a");
+                                String usernameTag = reverse ? "username_a" : "username_b";
+                                String username = user.getString(usernameTag);
                                 Log.d(".Maps",username);
                                 placeMarkerFor(username);
                             } catch (JSONException e) {
