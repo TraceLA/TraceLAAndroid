@@ -65,6 +65,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean sharingWithFriends=true;
     private NotificationManager mNotificationManager;
     private InternalMemory internalMemory;
+    private boolean isLoggingIn = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,10 +74,18 @@ public class MainActivity extends AppCompatActivity {
         internalMemory = new InternalMemory(this);
 
         if (internalMemory.internalMemoryIsEmpty()) {
+            isLoggingIn = true;
+            moveTaskToBack(true);
             startLoginActivity();
+            isLoggingIn = false;
         }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
         internalMemory.setCredentialsOfMainActivity();
-        Log.d("CREDENTIALS", username+", "+password+", "+api_key);
+        Log.d(".MainActivity", "CREDENTIALS: " + username+", "+password+", "+api_key);
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
@@ -101,15 +110,15 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
                 if (isChecked){
-                        Log.d(".MainActivity", "ToggleButton turned on");
-                        sendingLocation = true;
-                        internalMemory.updateInternalMemoryToggleState(true);
-                        startUpdatingLocation();
+                    Log.d(".MainActivity", "ToggleButton turned on");
+                    sendingLocation = true;
+                    internalMemory.updateInternalMemoryToggleState(true);
+                    startUpdatingLocation();
                 }else{
-                        Log.d(".MainActivity", "ToggleButton turned off");
-                        sendingLocation = false;
-                        internalMemory.updateInternalMemoryToggleState(false);
-                        endUpdatingLocation();
+                    Log.d(".MainActivity", "ToggleButton turned off");
+                    sendingLocation = false;
+                    internalMemory.updateInternalMemoryToggleState(false);
+                    endUpdatingLocation();
                 }
             }
         });
@@ -129,6 +138,14 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         startCheckingForExposure();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (isLoggingIn){
+            endUpdatingLocation();
+        }
     }
 
     public void startCheckingForExposure(){

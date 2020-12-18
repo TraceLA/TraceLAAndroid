@@ -80,6 +80,9 @@ public class LocationUpdates extends Service {
             username = intent.getStringExtra("username");
             password = intent.getStringExtra("password");
             api_key = intent.getStringExtra("api_key");
+            if (username == null || password == null || api_key == null || username.equals("") || password.equals("") || api_key.equals("")){
+                return;
+            }
         }
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         startLocationUpdates();
@@ -191,7 +194,7 @@ public class LocationUpdates extends Service {
     }
     private void updateApiKey() {
         RequestQueue queue = Volley.newRequestQueue(this);
-
+        if (username == null || password == null) return;
         String url = Constants.DATABASE_URL + "/userLogin/?username=" + username + "&password=" + password;
         Log.d(".LocationUpdate", "Login Post Attempt: " + username + ", " + password);
 

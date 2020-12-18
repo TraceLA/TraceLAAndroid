@@ -36,10 +36,15 @@ public class InternalMemory {
     public void writeExposureInfoToMemory(String exposureInfo) {
         String info = "";
         for (int i = 0; i <= LINE_OF_SHARING_WITH_FRIENDS; i++) {
-            info += linesFromMemory.get(i) + '\n';
+            if (i >= linesFromMemory.size() && (i == LINE_OF_LOCATION_SHARING || i == LINE_OF_SHARING_WITH_FRIENDS)){
+                info += "true\n";
+            } else {
+                info += linesFromMemory.get(i) + '\n';
+            }
         }
         info += exposureInfo;
         writeToInternalMemory(info);
+        updateLinesFromMemory();
     }
 
     public boolean hasNewContacts(String newExposures) {
