@@ -55,6 +55,7 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
     private HeatmapTileProvider provider;
     private boolean heatMapUninitialized = true;
     private LatLng currLoc = null;
+    private ArrayList<Marker> markers = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,8 +109,7 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
                 }
             }
         });
-        placeMarkersForFriends(true);
-        placeMarkersForFriends(false);
+        placeMarkersForAllFriends();
         getAllLocationData();
 
         if (currLoc!= null){
@@ -119,8 +119,7 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
         updateFriendsMarkers = new Runnable() {
              @Override
              public void run() {
-                 placeMarkersForFriends(true);
-                 placeMarkersForFriends(false);
+                placeMarkersForAllFriends();
                  getAllLocationData();
                  handler.postDelayed(this, UPDATE_INTERVAL);
              }
@@ -137,6 +136,12 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
     protected void onStop() {
         super.onStop();
         handler.removeCallbacks(updateFriendsMarkers);
+    }
+
+    public void placeMarkersForAllFriends(){
+        clearAllMarkers();
+        placeMarkersForFriends(true);
+        placeMarkersForFriends(false);
     }
 
     public void setHeatMap(List<LatLng> data){
@@ -261,7 +266,8 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
                                     double latitude = coordinate.getDouble("lat");
                                     double longitude = coordinate.getDouble("lng");
                                     LatLng friend = new LatLng(latitude, longitude);
-                                    mMap.addMarker(new MarkerOptions().position(friend).title(friendUsername));
+                                    Marker marker = mMap.addMarker(new MarkerOptions().position(friend).title(friendUsername));
+                                    markers.add(marker);
                                     Log.d(".Maps", "Marker was placed for "+friendUsername+" at ( "+latitude+", "+longitude+")");
                                 }catch (JSONException e){
                                     Log.d(".Maps","error processing location data: "+e.toString());
@@ -279,5 +285,12 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
             }
         });
         queue.add(coordGetRequest);
+    }
+
+    public void clearAllMarkers(){
+        for (int i = 0; i < markers.size(); i++){
+            markers.get(i).remove();
+        }
+        markers = new ArrayList<>();
     }
 }
