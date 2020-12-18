@@ -96,7 +96,7 @@ public class LoginPage extends AppCompatActivity {
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.d("wrong Username/pword", error.toString());
+                Log.d(".LoginPage", "wrong Username/pword"+error.toString());
             }
         });
 

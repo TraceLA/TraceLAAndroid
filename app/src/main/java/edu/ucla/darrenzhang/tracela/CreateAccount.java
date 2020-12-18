@@ -64,12 +64,12 @@ public class CreateAccount extends AppCompatActivity {
                     public void onResponse(String response) {
 
                         String text = response.toString();
-                        Log.d("SUCCESS: ", text);
+                        Log.d(".CreateAccount", "SUCCESS: " + text);
                     }
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.d("CREATE ACCOUNT: ", error.toString());
+                Log.d(".CreateAccount", error.toString());
             }
         });
         queue.add(userPOSTRequest);
