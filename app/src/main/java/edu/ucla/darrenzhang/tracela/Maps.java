@@ -108,7 +108,8 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
                 }
             }
         });
-        placeMarkersForFriends();
+        placeMarkersForFriends(true);
+        placeMarkersForFriends(false);
         getAllLocationData();
 
         if (currLoc!= null){
@@ -118,7 +119,8 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
         updateFriendsMarkers = new Runnable() {
              @Override
              public void run() {
-                 placeMarkersForFriends();
+                 placeMarkersForFriends(true);
+                 placeMarkersForFriends(false);
                  getAllLocationData();
                  handler.postDelayed(this, UPDATE_INTERVAL);
              }
@@ -216,9 +218,9 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback {
 
         queue.add(getAllUsers);
     }
-    public void placeMarkersForFriends() {
+    public void placeMarkersForFriends(boolean reverse) {
         RequestQueue queue = Volley.newRequestQueue(this);
-        JsonArrayRequest friendsGetRequest = new JsonArrayRequest(Request.Method.GET, Constants.DATABASE_URL + "/friends?username=" + MainActivity.username + "&reverse=true&confirmed=true", new JSONArray(),
+        JsonArrayRequest friendsGetRequest = new JsonArrayRequest(Request.Method.GET, Constants.DATABASE_URL + "/friends?username=" + MainActivity.username + "&reverse="+reverse+"&confirmed=true", new JSONArray(),
                 new Response.Listener<JSONArray>() {
                     @Override
                     public void onResponse(JSONArray userList) {
